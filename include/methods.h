@@ -70,6 +70,7 @@ void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThre
 
     // Variables
     int i, j;
+    double actualV, actualW;
     double **Vtilde, **Wtilde, **Rv, **rightside, **solution;
     Vtilde = (double **)malloc(N * sizeof(double *));
     Wtilde = (double **)malloc(N * sizeof(double *));
@@ -100,38 +101,325 @@ void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThre
     int discS2yMin = N - (int)(stim2yMax / deltay);
 
     // File names
-    char aux[MAX_STRING_SIZE], stringODE[MAX_STRING_SIZE], stringPDE[MAX_STRING_SIZE];
     char framesFileName[MAX_STRING_SIZE], lastFrameFileName[MAX_STRING_SIZE], infosFileName[MAX_STRING_SIZE];
-    gcvt(deltatODE, 3, stringODE);
-    gcvt(deltatPDE, 3, stringPDE);
-    sprintf(framesFileName, "frames-%s-%s.txt", stringODE, stringPDE);
-    sprintf(lastFrameFileName, "last-%s-%s.txt", stringODE, stringPDE);
-    sprintf(infosFileName, "infos-%s-%s.txt", stringODE, stringPDE);
+    sprintf(framesFileName, "frames-%d-%.3lf-%.3lf.txt", numberThreads, deltatODE, deltatPDE);
+    sprintf(lastFrameFileName, "last-%d-%.3lf-%.3lf.txt", numberThreads, deltatODE, deltatPDE);
+    sprintf(infosFileName, "infos-%d-%.3lf-%.3lf.txt", numberThreads, deltatODE, deltatPDE);
     int saverate = ceil(M / 100.0);
     FILE *fpFrames, *fpLast, *fpInfos;
+
+    // Create directories and files
+    char pathToSaveData[MAX_STRING_SIZE];
+    createDirectories(pathToSaveData, method, "AFHN");
+    
+    // File pointers
+    char aux[MAX_STRING_SIZE];
+    sprintf(aux, "%s/%s", pathToSaveData, framesFileName);
+    fpFrames = fopen(aux, "w");
+    sprintf(aux, "%s/%s", pathToSaveData, lastFrameFileName);
+    fpLast = fopen(aux, "w");
+    sprintf(aux, "%s/%s", pathToSaveData, infosFileName);
+    fpInfos = fopen(aux, "w");
+
+    /*--------------------
+    --  ADI 1st order   --
+    ----------------------*/
+    if (strcmp(method, "ADI1") == 0)
+    {   
+        // Start measuring total execution time
+        startTotal = omp_get_wtime();
+
+        #pragma omp parallel num_threads(numberThreads) default(none) private(i, j, Istim, actualV, actualW) \
+        shared(V, W, N, M, L, T, D, phi, deltatODE, deltatPDE, time, timeStep, timeStepCounter, PdeOdeRatio, \
+        stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
+        discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, \
+        c_, d_, Vtilde, Wtilde, S1Velocity, S1VelocityTag, saverate, fpFrames, fpLast, fpInfos, \
+        Rv, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
+        {
+            while (timeStepCounter < M)
+            {
+                // Get time step
+                timeStep = time[timeStepCounter];
+
+                // Start measuring ODE execution time
+                #pragma omp master
+                {
+                    startODE = omp_get_wtime();
+                }
+
+                // Resolve ODEs
+                for (int k = 0; k < PdeOdeRatio; k++)
+                {
+                    #pragma omp for collapse(2)
+                    for (i = 0; i < N; i++)
+                    {
+                        for (j = 0; j < N; j++)
+                        {
+                            // Stimulus
+                            Istim = stimulus(i, j, timeStep, discS1xLimit, discS1yLimit, discS2xMin, discS2xMax, discS2yMin, discS2yMax);
+
+                            // Get actual V and W
+                            actualV = V[i][j];
+                            actualW = W[i][j];
+                            
+                            // Update V and W without diffusion
+                            V[i][j] = actualV + deltatODE * (reactionV(actualV, actualW) + Istim);
+                            W[i][j] = actualW + deltatODE * reactionW(actualV, actualW);
+
+                            // Update right side of Thomas algorithm
+                            rightside[j][i] = V[i][j];
+                        }
+                    }
+                }
+
+                // Finish measuring ODE execution time and start measuring PDE execution time
+                #pragma omp master
+                {
+                    finishODE = omp_get_wtime();
+                    elapsedODE += finishODE - startODE;
+                    startPDE = omp_get_wtime();
+                }
+
+                // Resolve PDEs (Diffusion)
+                // 1st: Implicit y-axis diffusion (lines)
+                #pragma omp barrier
+                #pragma omp for nowait
+                for (i = 0; i < N; i++)
+                {
+                    ThomasAlgorithm2nd(rightside[i], solution[i], N, phi, c_[i], d_[i]);
+
+                    // Update V
+                    for (j = 0; j < N; j++)
+                    {
+                        Vtilde[j][i] = solution[i][j];
+                    }
+                }
+
+                // 2nd: Implicit x-axis diffusion (columns)
+                #pragma omp barrier
+                #pragma omp for nowait
+                for (i = 0; i < N; i++)
+                {
+                    ThomasAlgorithm2nd(Vtilde[i], V[i], N, phi, c_[i], d_[i]);
+                }
+
+                // Finish measuring PDE execution time
+                #pragma omp master
+                {
+                    finishPDE = omp_get_wtime();
+                    elapsedPDE += finishPDE - startPDE;
+                }
+
+                // Save frames
+                #pragma omp master
+                {
+                    // Write frames to file
+                    if (timeStepCounter % saverate == 0)
+                    {
+                        fprintf(fpFrames, "%lf\n", time[timeStepCounter]);
+                        for (i = 0; i < N; i++)
+                        {
+                            for (j = 0; j < N; j++)
+                            {
+                                fprintf(fpFrames, "%lf ", V[i][j]);
+                            }
+                            fprintf(fpFrames, "\n");
+                        }
+                    }
+
+                    // Check S1 velocity
+                    if (S1VelocityTag)
+                    {
+                        if (V[0][N-1] >= 80)
+                        {
+                            S1Velocity = ((10 * (L - stim1xLimit)) / (time[timeStepCounter]));
+                            S1VelocityTag = false;
+                            fprintf(fpInfos, "S1 velocity: %lf m/s\n", S1Velocity);
+                        }
+                    }
+                }
+
+                // Update time step counter
+                #pragma omp master
+                {
+                    timeStepCounter++;
+                }
+                #pragma omp barrier
+            }
+        }
+
+        // Finish measuring total execution time
+        finishTotal = omp_get_wtime();
+        elapsedTotal = finishTotal - startTotal;
+    }
+
+    /*-------------------------
+    --  SSI-ADI (2nd order)  --
+    --------------------------*/
+    else if (strcmp(method, "SSI-ADI") == 0)
+    {   
+        // Start measuring total execution time
+        startTotal = omp_get_wtime();
+
+        #pragma omp parallel num_threads(numberThreads) default(none) private(i, j, Istim, actualV, actualW) \
+        shared(V, W, N, M, L, T, D, phi, deltatODE, deltatPDE, time, timeStep, timeStepCounter, PdeOdeRatio, \
+        stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
+        discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, \
+        c_, d_, Vtilde, Wtilde, S1Velocity, S1VelocityTag, saverate, fpFrames, fpLast, fpInfos, \
+        Rv, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
+        {
+            while (timeStepCounter < M)
+            {
+                // Get time step
+                timeStep = time[timeStepCounter];
+
+                // Start measuring ODE execution time
+                #pragma omp master
+                {
+                    startODE = omp_get_wtime();
+                }
+
+                // Resolve ODEs
+                for (int k = 0; k < PdeOdeRatio; k++)
+                {
+                    #pragma omp for collapse(2)
+                    for (i = 0; i < N; i++)
+                    {
+                        for (j = 0; j < N; j++)
+                        {
+                            // Stimulus
+                            Istim = stimulus(i, j, timeStep, discS1xLimit, discS1yLimit, discS2xMin, discS2xMax, discS2yMin, discS2yMax);
+
+                            // Get actual V and W
+                            actualV = V[i][j];
+                            actualW = W[i][j];
+                            
+                            // Update V and W with diffusion
+                            Vtilde[i][j] = actualV + ((0.5 * phi) * (iDiffusion2nd(i, j, N, V) + jDiffusion2nd(i, j, N, V))) + (0.5 * deltatODE * (reactionV(actualV, actualW) + Istim));
+                            Wtilde[i][j] = actualW + (0.5 * deltatODE * reactionW(actualV, actualW));
+
+                            // Update V reaction term
+                            Rv[i][j] = 0.5 * deltatODE * (reactionV(Vtilde[i][j], Wtilde[i][j]) + Istim);
+
+                            // Update W explicitly (Heun)
+                            W[i][j] = actualW + (0.5 * deltatODE * reactionW(Vtilde[i][j], Wtilde[i][j]));
+                        }
+                    }
+                }
+
+                // Finish measuring ODE execution time and start measuring PDE execution time
+                #pragma omp master
+                {
+                    finishODE = omp_get_wtime();
+                    elapsedODE += finishODE - startODE;
+                    startPDE = omp_get_wtime();
+                }
+
+                // Resolve PDEs (Diffusion)
+                // 1st: Implicit y-axis diffusion (lines): right side with explicit x-axis diffusion (columns)
+                // Update right side of Thomas algorithm
+                #pragma omp barrier
+                #pragma omp for collapse(2)
+                for (i = 0; i < N; i++)
+                {
+                    for (j = 0; j < N; j++)
+                    {
+                        rightside[j][i] = (V[i][j] + (0.5 * phi * jDiffusion2nd(i, j, N, V))) + Rv[i][j];
+                    }
+                }
+
+                // Solve tridiagonal system for V (Thomas algorithm)
+                #pragma omp for nowait
+                for (i = 0; i < N; i++)
+                {
+                    ThomasAlgorithm2nd(rightside[i], solution[i], N, (0.5 * phi), c_[i], d_[i]);
+
+                    // Update V
+                    for (j = 0; j < N; j++)
+                    {
+                        V[j][i] = solution[i][j];
+                    }
+                }
+
+                // 2nd: Implicit x-axis diffusion (columns): right side with explicit y-axis diffusion (lines)
+                // Update right side of Thomas algorithm
+                #pragma omp barrier
+                #pragma omp for collapse(2)
+                for (i = 0; i < N; i++)
+                {
+                    for (j = 0; j < N; j++)
+                    {
+                        rightside[i][j] = (V[i][j] + (0.5 * phi * iDiffusion2nd(i, j, N, V))) + Rv[i][j];
+                    }
+                }
+
+                // Solve tridiagonal system for V (Thomas algorithm)
+                #pragma omp for nowait
+                for (i = 0; i < N; i++)
+                {
+                    ThomasAlgorithm2nd(rightside[i], V[i], N, (0.5 * phi), c_[i], d_[i]);
+                }
+
+                // Finish measuring PDE execution time
+                #pragma omp master
+                {
+                    finishPDE = omp_get_wtime();
+                    elapsedPDE += finishPDE - startPDE;
+                }
+
+                // Save frames
+                #pragma omp master
+                {
+                    // Write frames to file
+                    if (timeStepCounter % saverate == 0)
+                    {
+                        fprintf(fpFrames, "%lf\n", time[timeStepCounter]);
+                        for (i = 0; i < N; i++)
+                        {
+                            for (j = 0; j < N; j++)
+                            {
+                                fprintf(fpFrames, "%lf ", V[i][j]);
+                            }
+                            fprintf(fpFrames, "\n");
+                        }
+                    }
+
+                    // Check S1 velocity
+                    if (S1VelocityTag)
+                    {
+                        if (V[0][N-1] >= 80)
+                        {
+                            S1Velocity = ((10 * (L - stim1xLimit)) / (time[timeStepCounter]));
+                            S1VelocityTag = false;
+                            fprintf(fpInfos, "S1 velocity: %lf m/s\n", S1Velocity);
+                        }
+                    }
+                }
+
+                // Update time step counter
+                #pragma omp master
+                {
+                    timeStepCounter++;
+                }
+                #pragma omp barrier
+            }
+        }
+
+        // Finish measuring total execution time
+        finishTotal = omp_get_wtime();
+        elapsedTotal = finishTotal - startTotal;
+    }
 
 
     /*--------------------
     --  Forward Euler   --
     ----------------------*/
-    if (strcmp(method, "FE") == 0)
+    else if (strcmp(method, "FE") == 0)
     {
-        // Create directories and files
-        char pathToSaveData[MAX_STRING_SIZE];
-        createDirectories(pathToSaveData, method, "AFHN");
-        
-        // File pointers
-        sprintf(aux, "%s/%s", pathToSaveData, framesFileName);
-        fpFrames = fopen(aux, "w");
-        sprintf(aux, "%s/%s", pathToSaveData, lastFrameFileName);
-        fpLast = fopen(aux, "w");
-        sprintf(aux, "%s/%s", pathToSaveData, infosFileName);
-        fpInfos = fopen(aux, "w");
-        
         // Start measuring total execution time
         startTotal = omp_get_wtime();
 
-        #pragma omp parallel num_threads(numberThreads) default(none) private(i, j, Istim) \
+        #pragma omp parallel num_threads(numberThreads) default(none) private(i, j, Istim, actualV, actualW) \
         shared(V, W, N, M, L, T, D, phi, deltatODE, deltatPDE, time, timeStep, timeStepCounter, PdeOdeRatio, \
         stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
         discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, \
@@ -157,24 +445,17 @@ void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThre
                     {
                         for (j = 1; j < N - 1; j++)
                         {
-                            // Stimulus 1
-                            if (timeStep >= stim1Begin && timeStep <= stim1Begin + stim1Duration && j <= discS1xLimit)
-                            {
-                                Istim = stimStrength;
-                            }
-                            // Stimulus 2
-                            else if (timeStep >= stim2Begin && timeStep <= stim2Begin + stim2Duration && j >= discS2xMin && j <= discS2xMax && i >= discS2yMin && i <= discS2yMax)
-                            {
-                                Istim = stimStrength;
-                            }
-                            else 
-                            {
-                                Istim = 0.0;
-                            }
+                            // Stimulus
+                            Istim = stimulus(i, j, timeStep, discS1xLimit, discS1yLimit, discS2xMin, discS2xMax, discS2yMin, discS2yMax);
+
+                            // Get actual V and W
+                            actualV = V[i][j];
+                            actualW = W[i][j];
 
                             // Update V and W
-                            Vtilde[i][j] = V[i][j] + deltatODE * (reactionV(V[i][j], W[i][j]) + Istim);
-                            W[i][j] = W[i][j] + deltatODE * (reactionW(V[i][j], W[i][j]));
+                            Vtilde[i][j] = actualV + deltatODE * (reactionV(actualV, actualW) + Istim);
+                            V[i][j] = Vtilde[i][j];
+                            W[i][j] = actualW + deltatODE * reactionW(actualV, actualW);
                         }
                     }
                 }
@@ -268,22 +549,22 @@ void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThre
         // Finish measuring total execution time
         finishTotal = omp_get_wtime();
         elapsedTotal = finishTotal - startTotal;
+    }
 
-        // Write infos to file
-        fprintf(fpInfos, "Total execution time: %lf seconds\n", elapsedTotal);
-        fprintf(fpInfos, "PDE/ODE ratio: %d\n", PdeOdeRatio);
-        fprintf(fpInfos, "ODE execution time: %lf seconds\n", elapsedODE);
-        fprintf(fpInfos, "PDE execution time: %lf seconds\n", elapsedPDE);
+    // Write infos to file
+    fprintf(fpInfos, "Total execution time: %lf seconds\n", elapsedTotal);
+    fprintf(fpInfos, "PDE/ODE ratio: %d\n", PdeOdeRatio);
+    fprintf(fpInfos, "ODE execution time: %lf seconds\n", elapsedODE);
+    fprintf(fpInfos, "PDE execution time: %lf seconds\n", elapsedPDE);
 
-        // Write last frame to file
-        for (int i = 0; i < N; i++)
+    // Write last frame to file
+    for (int i = 0; i < N; i++)
+    {
+        for (int j = 0; j < N; j++)
         {
-            for (int j = 0; j < N; j++)
-            {
-                fprintf(fpLast, "%lf ", V[i][j]);
-            }
-            fprintf(fpLast, "\n");
+            fprintf(fpLast, "%lf ", V[i][j]);
         }
+        fprintf(fpLast, "\n");
     }
 
     // Close files

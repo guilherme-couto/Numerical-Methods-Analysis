@@ -39,40 +39,40 @@ void ThomasAlgorithm2nd(double *d, double *solution, unsigned long N, double phi
 }
 
 // Adapted for 2nd order approximation
-double iDiffusion2nd(int i, int j, int N, double **v)
+double iDiffusion2nd(int i, int j, int N, double **V)
 {
     double result = 0.0;
     if (i == 0)
     {
-        result = - 2.0*v[i][j] + 2.0*v[i + 1][j]; 
+        result = - 2.0*V[i][j] + 2.0*V[i + 1][j]; 
     }
     else if (i == N - 1)
     {
-        result = 2.0*v[i - 1][j] - 2.0*v[i][j]; 
+        result = 2.0*V[i - 1][j] - 2.0*V[i][j]; 
     }
     else
     {
-        result = v[i - 1][j] - 2.0*v[i][j] + v[i + 1][j];
+        result = V[i - 1][j] - 2.0*V[i][j] + V[i + 1][j];
     }
 
     return result;
 }
 
 // Adapted for 2nd order approximation
-double jDiffusion2nd(int i, int j, int N, double **v)
+double jDiffusion2nd(int i, int j, int N, double **V)
 {
     double result = 0.0;
     if (j == 0)
     {
-        result = - 2.0*v[i][j] + 2.0*v[i][j + 1]; 
+        result = - 2.0*V[i][j] + 2.0*V[i][j + 1]; 
     }
     else if (j == N - 1)
     {
-        result = 2.0*v[i][j - 1] - 2.0*v[i][j]; 
+        result = 2.0*V[i][j - 1] - 2.0*V[i][j]; 
     }
     else
     {
-        result = v[i][j - 1] - 2.0*v[i][j] + v[i][j + 1];
+        result = V[i][j - 1] - 2.0*V[i][j] + V[i][j + 1];
     }
 
     return result;
@@ -147,6 +147,21 @@ void createDirectories(char *pathToSaveData, char *method, char *cellModel)
     sprintf(pathToSaveData, "%s/%s", pathToSaveData, method);
     sprintf(aux, "%s %s", command, pathToSaveData);
     system(aux);
+}
+
+double stimulus(int i, int j, int timeStep, int discS1xLimit, int discS1yLimit, int discS2xMin, int discS2xMax, int discS2yMin, int discS2yMax)
+{
+   // Stimulus 1
+    if (timeStep >= stim1Begin && timeStep <= stim1Begin + stim1Duration && j <= discS1xLimit)
+    {
+        return stimStrength;
+    }
+    // Stimulus 2
+    else if (timeStep >= stim2Begin && timeStep <= stim2Begin + stim2Duration && j >= discS2xMin && j <= discS2xMax && i >= discS2yMin && i <= discS2yMax)
+    {
+        return stimStrength;
+    }
+    return 0.0;
 }
 
 // TODO: fix this function. Allocation with function call is not working
