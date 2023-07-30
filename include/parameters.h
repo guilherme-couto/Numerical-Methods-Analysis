@@ -53,7 +53,7 @@ double eta2 = 0.012;    // dimensionless
 double eta3 = 1.0;      // dimensionless
 double vth = 13.0;      // mV
 double vp = 100.0;      // mV
-double ga = 1.2e-3;     // omega^-1 * cm^-1
+double sigma = 1.2e-3;  // omega^-1 * cm^-1
 
 double chi = 1.0e3;     // cm^-1
 double Cm = 1.0e-3;     // mF * cm^-2

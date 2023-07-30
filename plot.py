@@ -60,7 +60,7 @@ def main():
     cell_model = 'AFHN'
     numbers_threads = [4]
     dts_ODE = [0.02, 0.04, 0.06, 0.08, 0.1, 0.2]
-    methods = ['ADI1', 'SSI-ADI', 'FE']
+    methods = ['ADI1', 'SSI-ADI', 'ADI1.5', 'FE']
     
     for number_threads in numbers_threads:
         for method in methods:
@@ -73,6 +73,7 @@ def main():
                         i += 1
                 for dt_PDE in dts_PDE:
                     create_gif(number_threads, f'{dt_ODE:.3f}', f'{dt_PDE:.3f}', method, cell_model)
+                    print(f'Gif created for {number_threads} threads, {dt_ODE} dt_ODE, {dt_PDE} dt_PDE and {method} method.')
 
 if __name__ == '__main__':
     main()

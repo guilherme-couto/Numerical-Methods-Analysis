@@ -24,7 +24,7 @@ def main():
     cell_model = 'AFHN'
     numbers_threads = [4]
     dts_ODE = [0.02, 0.04, 0.06, 0.08, 0.1, 0.2]
-    methods = ['ADI1', 'SSI-ADI', 'FE']
+    methods = ['ADI1', 'SSI-ADI', 'ADI1.5', 'FE']
     
     # Reference solution
     reference_filename = f'./simulation-files/{cell_model}/FE/last-1-0.005-0.005.txt'
@@ -48,7 +48,7 @@ def main():
                     filename = f'./simulation-files/{cell_model}/{method}/last-{number_threads}-{dt_ODE:.3f}-{dt_PDE:.3f}.txt'
                     case = matrix_to_vector(read_file_matrix(filename))
                     
-                    f_errors.write(f'\nError between FE with dtODE = dtPDE = 0.005 and {method} with dtODE = {dt_ODE:.3f} and dtPDE = {dt_PDE:.3f}:\n')
+                    f_errors.write(f'\nError for {method} with dtODE = {dt_ODE:.3f} and dtPDE = {dt_PDE:.3f}:\n')
                     
                     # If case has a negative or NaN value, then the simulation diverged
                     if np.any(case < 0) or np.any(np.isnan(case)):
