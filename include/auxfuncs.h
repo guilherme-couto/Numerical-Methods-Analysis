@@ -5,12 +5,20 @@
 
 
 // Adapted for 2nd order approximation
-void ThomasAlgorithm2nd(double *d, double *solution, unsigned long N, double phi, double *c_, double *d_)
+void ThomasAlgorithm2nd(double *d, double *solution, unsigned long N, double phi, double *c_, double *d_, int fibroLower, int fibroUpper)
 {   
     // Coefficients
     double a = -phi;            // subdiagonal
     double b = 1 + 2 * phi;     // diagonal (1st and last row)
     double c = - 2 * phi;       // superdiagonal
+
+    // Check if it is in the fibrotic region
+    if (0 >= fibroLower && 0 <= fibroUpper)
+    {
+        a = -phi * fibrosisFactor;
+        b = 1 + 2 * phi * fibrosisFactor;
+        c = - 2 * phi * fibrosisFactor;
+    }
     
     // 1st: update auxiliary arrays
     c_[0] = c / b;
@@ -20,11 +28,38 @@ void ThomasAlgorithm2nd(double *d, double *solution, unsigned long N, double phi
     
     for (int i = 1; i <= N - 2; i++)
     {
+        // Check if it is in the fibrotic region
+        if (i >= fibroLower && i <= fibroUpper)
+        {
+            a = -phi * fibrosisFactor;
+            b = 1 + 2 * phi * fibrosisFactor;
+            c = -phi * fibrosisFactor;
+        }
+        else
+        {
+            a = -phi;
+            b = 1 + 2 * phi;
+            c = -phi;
+        }
+
         c_[i] = c / (b - a * c_[i - 1]);
         d_[i] = (d[i] - a * d_[i - 1]) / (b - a * c_[i - 1]);
     }
     
     a = - 2 * phi;
+    // Check if it is in the fibrotic region
+    if (N - 1 >= fibroLower && N - 1 <= fibroUpper)
+    {
+        a = - 2 * phi * fibrosisFactor;
+        b = 1 + 2 * phi * fibrosisFactor;
+        c = -phi * fibrosisFactor;
+    }
+    else
+    {
+        a = - 2 * phi;
+        b = 1 + 2 * phi;
+        c = -phi;
+    }
     d_[N - 1] = (d[N - 1] - a * d_[N - 2]) / (b - a * c_[N - 2]);
 
     a = -phi;
@@ -34,6 +69,19 @@ void ThomasAlgorithm2nd(double *d, double *solution, unsigned long N, double phi
     
     for (int i = N - 2; i >= 0; i--)
     {
+        // Check if it is in the fibrotic region
+        if (i >= fibroLower && i <= fibroUpper)
+        {
+            a = -phi * fibrosisFactor;
+            b = 1 + 2 * phi * fibrosisFactor;
+            c = -phi * fibrosisFactor;
+        }
+        else
+        {
+            a = -phi;
+            b = 1 + 2 * phi;
+            c = -phi;
+        }
         solution[i] = d_[i] - c_[i] * solution[i + 1];
     }
 }

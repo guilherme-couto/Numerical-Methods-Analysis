@@ -27,16 +27,16 @@ double S1Velocity = 0.0;
 //##                                        ##
 //############################################
 #if defined(AFHN)
-void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThreads)
+void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, int numberThreads)
 {
     // Get options
-    char *method = options[0];
-    char *measureTotalTime = options[1];
-    char *saveDataToError = options[2];
-    char *saveDataToGif = options[3];
-    char *measureTimeParts = options[4];
-    char *measureS1Velocity = options[5];
-    char *evaluateVulnerabilityWindow = options[6];
+    bool haveFibrosis = options[0];
+    bool measureTotalTime = options[1];
+    bool saveDataToError = options[2];
+    bool saveDataToGif = options[3];
+    bool measureTimeParts = options[4];
+    bool measureS1Velocity = options[5];
+    bool evaluateVulnerabilityWindow = options[6];
 
     // Number of steps
     int N = (int)(L / deltax);                          // Spatial steps (square tissue)
@@ -69,7 +69,7 @@ void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThre
     double phi = D * deltatPDE / (deltax * deltax);    // For Thomas algorithm - isotropic
 
     // Variables
-    int i, j;
+    int i, j;                                          // i for y-axis and j for x-axis
     double actualV, actualW;
     double **Vtilde, **Wtilde, **Rv, **rightside, **solution;
     Vtilde = (double **)malloc(N * sizeof(double *));
@@ -100,6 +100,12 @@ void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThre
     int discS2yMax = N;
     int discS2yMin = N - (int)(stim2yMax / deltay);
 
+    // Discritized limits of fibrotic area
+    int discFibxMax = (int)(fibrosisMaxX / deltax);
+    int discFibxMin = (int)(fibrosisMinX / deltax);
+    int discFibyMax = N - (int)(fibrosisMinY / deltay);
+    int discFibyMin = N - (int)(fibrosisMaxY / deltay);
+
     // File names
     char framesFileName[MAX_STRING_SIZE], lastFrameFileName[MAX_STRING_SIZE], infosFileName[MAX_STRING_SIZE];
     sprintf(framesFileName, "frames-%d-%.3lf-%.3lf.txt", numberThreads, deltatODE, deltatPDE);
@@ -110,7 +116,14 @@ void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThre
 
     // Create directories and files
     char pathToSaveData[MAX_STRING_SIZE];
-    createDirectories(pathToSaveData, method, "AFHN");
+    if (haveFibrosis)
+    {
+        createDirectories(pathToSaveData, method, "AFHN-Fibro");
+    }
+    else
+    {
+        createDirectories(pathToSaveData, method, "AFHN");
+    }
     
     // File pointers
     char aux[MAX_STRING_SIZE];
@@ -131,8 +144,8 @@ void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThre
 
         #pragma omp parallel num_threads(numberThreads) default(none) private(i, j, Istim, actualV, actualW) \
         shared(V, W, N, M, L, T, D, phi, deltatODE, deltatPDE, time, timeStep, timeStepCounter, PdeOdeRatio, \
-        stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
-        discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, \
+        fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
+        discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
         c_, d_, Vtilde, Wtilde, S1Velocity, S1VelocityTag, saverate, fpFrames, fpLast, fpInfos, \
         Rv, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
         {
@@ -186,7 +199,15 @@ void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThre
                 #pragma omp for nowait
                 for (i = 0; i < N; i++)
                 {
-                    ThomasAlgorithm2nd(rightside[i], solution[i], N, phi, c_[i], d_[i]);
+                    // Check if i is in fibrotic region
+                    if (i >= discFibyMin && i <= discFibyMax)
+                    {
+                        ThomasAlgorithm2nd(rightside[i], solution[i], N, phi, c_[i], d_[i], discFibxMin, discFibxMax);
+                    }
+                    else
+                    {
+                        ThomasAlgorithm2nd(rightside[i], solution[i], N, phi, c_[i], d_[i], N, 0);
+                    }
 
                     // Update V
                     for (j = 0; j < N; j++)
@@ -200,7 +221,15 @@ void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThre
                 #pragma omp for nowait
                 for (i = 0; i < N; i++)
                 {
-                    ThomasAlgorithm2nd(Vtilde[i], V[i], N, phi, c_[i], d_[i]);
+                    // Check if i is in fibrotic region
+                    if (i >= discFibxMin && i <= discFibxMax)
+                    {
+                        ThomasAlgorithm2nd(Vtilde[i], V[i], N, phi, c_[i], d_[i], discFibyMin, discFibyMax);
+                    }
+                    else
+                    {
+                        ThomasAlgorithm2nd(Vtilde[i], V[i], N, phi, c_[i], d_[i], N, 0);
+                    }
                 }
 
                 // Finish measuring PDE execution time
@@ -263,8 +292,8 @@ void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThre
 
         #pragma omp parallel num_threads(numberThreads) default(none) private(i, j, Istim, actualV, actualW) \
         shared(V, W, N, M, L, T, D, phi, deltatODE, deltatPDE, time, timeStep, timeStepCounter, PdeOdeRatio, \
-        stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
-        discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, \
+        fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
+        discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
         c_, d_, Vtilde, Wtilde, S1Velocity, S1VelocityTag, saverate, fpFrames, fpLast, fpInfos, \
         Rv, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
         {
@@ -324,7 +353,15 @@ void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThre
                 {
                     for (j = 0; j < N; j++)
                     {
-                        rightside[j][i] = (V[i][j] + (0.5 * phi * jDiffusion2nd(i, j, N, V))) + Rv[i][j];
+                        // Check if i and j are in fibrotic region
+                        if ((i >= discFibyMin && i <= discFibyMax) && (j >= discFibxMin && j <= discFibxMax))
+                        {
+                            rightside[j][i] = (V[i][j] + (0.5 * phi * fibrosisFactor * jDiffusion2nd(i, j, N, V))) + Rv[i][j];
+                        }
+                        else
+                        {
+                            rightside[j][i] = (V[i][j] + (0.5 * phi * jDiffusion2nd(i, j, N, V))) + Rv[i][j];
+                        }
                     }
                 }
 
@@ -332,7 +369,15 @@ void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThre
                 #pragma omp for nowait
                 for (i = 0; i < N; i++)
                 {
-                    ThomasAlgorithm2nd(rightside[i], solution[i], N, (0.5 * phi), c_[i], d_[i]);
+                    // Check if i is in fibrotic region
+                    if (i >= discFibyMin && i <= discFibyMax)
+                    {
+                        ThomasAlgorithm2nd(rightside[i], solution[i], N, (0.5 * phi), c_[i], d_[i], discFibxMin, discFibxMax);
+                    }
+                    else
+                    {
+                        ThomasAlgorithm2nd(rightside[i], solution[i], N, (0.5 * phi), c_[i], d_[i], N, 0);
+                    }
 
                     // Update V
                     for (j = 0; j < N; j++)
@@ -349,7 +394,15 @@ void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThre
                 {
                     for (j = 0; j < N; j++)
                     {
-                        rightside[i][j] = (V[i][j] + (0.5 * phi * iDiffusion2nd(i, j, N, V))) + Rv[i][j];
+                        // Check if i and j are in fibrotic region
+                        if ((i >= discFibyMin && i <= discFibyMax) && (j >= discFibxMin && j <= discFibxMax))
+                        {
+                            rightside[i][j] = (V[i][j] + (0.5 * phi * fibrosisFactor * iDiffusion2nd(i, j, N, V))) + Rv[i][j];
+                        }
+                        else
+                        {
+                            rightside[i][j] = (V[i][j] + (0.5 * phi * iDiffusion2nd(i, j, N, V))) + Rv[i][j];
+                        }
                     }
                 }
 
@@ -357,7 +410,15 @@ void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThre
                 #pragma omp for nowait
                 for (i = 0; i < N; i++)
                 {
-                    ThomasAlgorithm2nd(rightside[i], V[i], N, (0.5 * phi), c_[i], d_[i]);
+                    // Check if i is in fibrotic region
+                    if (i >= discFibxMin && i <= discFibxMax)
+                    {
+                        ThomasAlgorithm2nd(rightside[i], V[i], N, (0.5 * phi), c_[i], d_[i], discFibyMin, discFibyMax);
+                    }
+                    else
+                    {
+                        ThomasAlgorithm2nd(rightside[i], V[i], N, (0.5 * phi), c_[i], d_[i], N, 0);
+                    }
                 }
 
                 // Finish measuring PDE execution time
@@ -421,8 +482,8 @@ void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThre
 
         #pragma omp parallel num_threads(numberThreads) default(none) private(i, j, Istim, actualV, actualW) \
         shared(V, W, N, M, L, T, D, phi, deltatODE, deltatPDE, time, timeStep, timeStepCounter, PdeOdeRatio, \
-        stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
-        discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, \
+        fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
+        discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
         c_, d_, Vtilde, Wtilde, S1Velocity, S1VelocityTag, saverate, fpFrames, fpLast, fpInfos, \
         Rv, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
         {
@@ -481,7 +542,15 @@ void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThre
                 {
                     for (j = 0; j < N; j++)
                     {
-                        rightside[j][i] = (V[i][j] + (0.5 * phi * jDiffusion2nd(i, j, N, V))) + Rv[i][j];
+                        // Check if i and j are in fibrotic region
+                        if ((i >= discFibyMin && i <= discFibyMax) && (j >= discFibxMin && j <= discFibxMax))
+                        {
+                            rightside[j][i] = (V[i][j] + (0.5 * phi * fibrosisFactor * jDiffusion2nd(i, j, N, V))) + Rv[i][j];
+                        }
+                        else
+                        {
+                            rightside[j][i] = (V[i][j] + (0.5 * phi * jDiffusion2nd(i, j, N, V))) + Rv[i][j];
+                        }
                     }
                 }
 
@@ -489,7 +558,15 @@ void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThre
                 #pragma omp for nowait
                 for (i = 0; i < N; i++)
                 {
-                    ThomasAlgorithm2nd(rightside[i], solution[i], N, (0.5 * phi), c_[i], d_[i]);
+                    // Check if i is in fibrotic region
+                    if (i >= discFibyMin && i <= discFibyMax)
+                    {
+                        ThomasAlgorithm2nd(rightside[i], solution[i], N, (0.5 * phi), c_[i], d_[i], discFibxMin, discFibxMax);
+                    }
+                    else
+                    {
+                        ThomasAlgorithm2nd(rightside[i], solution[i], N, (0.5 * phi), c_[i], d_[i], N, 0);
+                    }
 
                     // Update V
                     for (j = 0; j < N; j++)
@@ -506,7 +583,15 @@ void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThre
                 {
                     for (j = 0; j < N; j++)
                     {
-                        rightside[i][j] = (V[i][j] + (0.5 * phi * iDiffusion2nd(i, j, N, V))) + Rv[i][j];
+                        // Check if i and j are in fibrotic region
+                        if ((i >= discFibyMin && i <= discFibyMax) && (j >= discFibxMin && j <= discFibxMax))
+                        {
+                            rightside[i][j] = (V[i][j] + (0.5 * phi * fibrosisFactor * iDiffusion2nd(i, j, N, V))) + Rv[i][j];
+                        }
+                        else
+                        {
+                            rightside[i][j] = (V[i][j] + (0.5 * phi * iDiffusion2nd(i, j, N, V))) + Rv[i][j];
+                        }
                     }
                 }
 
@@ -514,7 +599,15 @@ void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThre
                 #pragma omp for nowait
                 for (i = 0; i < N; i++)
                 {
-                    ThomasAlgorithm2nd(rightside[i], V[i], N, (0.5 * phi), c_[i], d_[i]);
+                    // Check if i is in fibrotic region
+                    if (i >= discFibxMin && i <= discFibxMax)
+                    {
+                        ThomasAlgorithm2nd(rightside[i], V[i], N, (0.5 * phi), c_[i], d_[i], discFibyMin, discFibyMax);
+                    }
+                    else
+                    {
+                        ThomasAlgorithm2nd(rightside[i], V[i], N, (0.5 * phi), c_[i], d_[i], N, 0);
+                    }
                 }
 
                 // Finish measuring PDE execution time
@@ -578,8 +671,8 @@ void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThre
 
         #pragma omp parallel num_threads(numberThreads) default(none) private(i, j, Istim, actualV, actualW) \
         shared(V, W, N, M, L, T, D, phi, deltatODE, deltatPDE, time, timeStep, timeStepCounter, PdeOdeRatio, \
-        stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
-        discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, \
+        fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
+        discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
         c_, d_, Vtilde, Wtilde, S1Velocity, S1VelocityTag, saverate, fpFrames, fpLast, fpInfos, \
         Rv, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
         {
@@ -642,9 +735,17 @@ void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThre
                 {
                     for (j = 1; j < N - 1; j++)
                     {
-                        // Update V
-                        V[i][j] = Vtilde[i][j] + phi * (Vtilde[i-1][j] - 2.0*Vtilde[i][j] + Vtilde[i+1][j]);
-                        V[i][j] += phi * (Vtilde[i][j-1] - 2.0*Vtilde[i][j] + Vtilde[i][j+1]);
+                        // Check if i and j are in fibrotic region
+                        if ((i >= discFibyMin && i <= discFibyMax) && (j >= discFibxMin && j <= discFibxMax))
+                        {
+                            V[i][j] = Vtilde[i][j] + phi * fibrosisFactor * (Vtilde[i-1][j] - 2.0*Vtilde[i][j] + Vtilde[i+1][j]);
+                            V[i][j] += phi * fibrosisFactor * (Vtilde[i][j-1] - 2.0*Vtilde[i][j] + Vtilde[i][j+1]);
+                        }
+                        else
+                        {
+                            V[i][j] = Vtilde[i][j] + phi * (Vtilde[i-1][j] - 2.0*Vtilde[i][j] + Vtilde[i+1][j]);
+                            V[i][j] += phi * (Vtilde[i][j-1] - 2.0*Vtilde[i][j] + Vtilde[i][j+1]);
+                        }
                     }
                 }
 
@@ -713,6 +814,11 @@ void runMethod(char *options[], float deltatODE, float deltatPDE, int numberThre
     fprintf(fpInfos, "PDE/ODE ratio: %d\n", PdeOdeRatio);
     fprintf(fpInfos, "ODE execution time: %lf seconds\n", elapsedODE);
     fprintf(fpInfos, "PDE execution time: %lf seconds\n", elapsedPDE);
+    if (haveFibrosis)
+    {
+        fprintf(fpInfos, "Fibrosis factor: %lf\n", fibrosisFactor);
+        fprintf(fpInfos, "Fibrosis region: (%d, %d) to (%d, %d)\n", discFibxMin, discFibyMin, discFibxMax, discFibyMax);
+    }
 
     // Write last frame to file
     for (int i = 0; i < N; i++)

@@ -1,0 +1,256 @@
+
+Error for ADI1 with dtODE = 0.020 and dtPDE = 0.020:
+Mean absolute error: 2.0086
+Mean square error: 38.1795
+Relative error: 0.1427 (14.2750 %)
+
+Error for ADI1 with dtODE = 0.020 and dtPDE = 0.040:
+Mean absolute error: 2.9145
+Mean square error: 74.3736
+Relative error: 0.1992 (19.9237 %)
+
+Error for ADI1 with dtODE = 0.020 and dtPDE = 0.060:
+Mean absolute error: 3.8154
+Mean square error: 116.8519
+Relative error: 0.2497 (24.9734 %)
+
+Error for ADI1 with dtODE = 0.020 and dtPDE = 0.080:
+Mean absolute error: 4.7451
+Mean square error: 166.4079
+Relative error: 0.2980 (29.8021 %)
+
+Error for ADI1 with dtODE = 0.020 and dtPDE = 0.100:
+Mean absolute error: 5.8370
+Mean square error: 227.8568
+Relative error: 0.3487 (34.8731 %)
+
+Error for ADI1 with dtODE = 0.020 and dtPDE = 0.120:
+Mean absolute error: 6.5852
+Mean square error: 271.8416
+Relative error: 0.3809 (38.0906 %)
+
+Error for ADI1 with dtODE = 0.020 and dtPDE = 0.140:
+Mean absolute error: 7.7724
+Mean square error: 342.8282
+Relative error: 0.4278 (42.7758 %)
+
+Error for ADI1 with dtODE = 0.020 and dtPDE = 0.160:
+Mean absolute error: 8.5237
+Mean square error: 393.1050
+Relative error: 0.4581 (45.8051 %)
+
+Error for ADI1 with dtODE = 0.020 and dtPDE = 0.180:
+Mean absolute error: 9.6733
+Mean square error: 466.4318
+Relative error: 0.4989 (49.8946 %)
+
+Error for ADI1 with dtODE = 0.020 and dtPDE = 0.200:
+Mean absolute error: 10.8101
+Mean square error: 541.9724
+Relative error: 0.5378 (53.7834 %)
+
+Error for ADI1 with dtODE = 0.040 and dtPDE = 0.040:
+Mean absolute error: 3.7214
+Mean square error: 111.1589
+Relative error: 0.2436 (24.3575 %)
+
+Error for ADI1 with dtODE = 0.040 and dtPDE = 0.080:
+Mean absolute error: 5.5421
+Mean square error: 210.6280
+Relative error: 0.3353 (33.5288 %)
+
+Error for ADI1 with dtODE = 0.040 and dtPDE = 0.120:
+Mean absolute error: 7.3772
+Mean square error: 320.0755
+Relative error: 0.4133 (41.3320 %)
+
+Error for ADI1 with dtODE = 0.040 and dtPDE = 0.160:
+Mean absolute error: 9.3158
+Mean square error: 444.0648
+Relative error: 0.4868 (48.6836 %)
+
+Error for ADI1 with dtODE = 0.040 and dtPDE = 0.200:
+Mean absolute error: 11.5994
+Mean square error: 595.1008
+Relative error: 0.5636 (56.3579 %)
+
+Error for ADI1 with dtODE = 0.060 and dtPDE = 0.060:
+Mean absolute error: 5.3861
+Mean square error: 200.4039
+Relative error: 0.3270 (32.7049 %)
+
+Error for ADI1 with dtODE = 0.060 and dtPDE = 0.120:
+Mean absolute error: 8.1413
+Mean square error: 367.9871
+Relative error: 0.4432 (44.3176 %)
+
+Error for ADI1 with dtODE = 0.060 and dtPDE = 0.180:
+Mean absolute error: 11.2109
+Mean square error: 568.8450
+Relative error: 0.5510 (55.1006 %)
+
+Error for ADI1 with dtODE = 0.080 and dtPDE = 0.080:
+Mean absolute error: 7.0485
+Mean square error: 300.1053
+Relative error: 0.4002 (40.0218 %)
+
+Error for ADI1 with dtODE = 0.080 and dtPDE = 0.160:
+Mean absolute error: 10.8234
+Mean square error: 543.5631
+Relative error: 0.5386 (53.8623 %)
+
+Error for ADI1 with dtODE = 0.100 and dtPDE = 0.100:
+Mean absolute error: 8.8440
+Mean square error: 413.4312
+Relative error: 0.4697 (46.9744 %)
+
+Error for ADI1 with dtODE = 0.100 and dtPDE = 0.200:
+Mean absolute error: 13.8383
+Mean square error: 749.2417
+Relative error: 0.6324 (63.2369 %)
+
+Error for ADI1 with dtODE = 0.200 and dtPDE = 0.200:
+Mean absolute error: 17.3076
+Mean square error: 998.0731
+Relative error: 0.7299 (72.9862 %)
+
+Error for SSI-ADI with dtODE = 0.020 and dtPDE = 0.020:
+Mean absolute error: 0.4222
+Mean square error: 3.8089
+Relative error: 0.0451 (4.5088 %)
+
+Error for SSI-ADI with dtODE = 0.040 and dtPDE = 0.040:
+Mean absolute error: 0.6760
+Mean square error: 10.9807
+Relative error: 0.0766 (7.6555 %)
+
+Error for SSI-ADI with dtODE = 0.060 and dtPDE = 0.060:
+Mean absolute error: 1.0227
+Mean square error: 22.9023
+Relative error: 0.1106 (11.0560 %)
+
+Error for SSI-ADI with dtODE = 0.080 and dtPDE = 0.080:
+Mean absolute error: 1.3150
+Mean square error: 36.2465
+Relative error: 0.1391 (13.9089 %)
+
+Error for SSI-ADI with dtODE = 0.100 and dtPDE = 0.100:
+Mean absolute error: 1.6599
+Mean square error: 52.4343
+Relative error: 0.1673 (16.7289 %)
+
+Error for SSI-ADI with dtODE = 0.200 and dtPDE = 0.200:
+Simulation diverged
+
+Error for ADI1.5 with dtODE = 0.020 and dtPDE = 0.020:
+Mean absolute error: 0.5195
+Mean square error: 4.8651
+Relative error: 0.0510 (5.0957 %)
+
+Error for ADI1.5 with dtODE = 0.040 and dtPDE = 0.040:
+Mean absolute error: 0.9491
+Mean square error: 15.5429
+Relative error: 0.0911 (9.1081 %)
+
+Error for ADI1.5 with dtODE = 0.060 and dtPDE = 0.060:
+Mean absolute error: 1.5034
+Mean square error: 33.7392
+Relative error: 0.1342 (13.4192 %)
+
+Error for ADI1.5 with dtODE = 0.080 and dtPDE = 0.080:
+Mean absolute error: 1.9872
+Mean square error: 54.6476
+Relative error: 0.1708 (17.0783 %)
+
+Error for ADI1.5 with dtODE = 0.100 and dtPDE = 0.100:
+Mean absolute error: 2.4756
+Mean square error: 79.7288
+Relative error: 0.2063 (20.6285 %)
+
+Error for ADI1.5 with dtODE = 0.200 and dtPDE = 0.200:
+Simulation diverged
+
+Error for FE with dtODE = 0.020 and dtPDE = 0.020:
+Mean absolute error: 0.2518
+Mean square error: 0.7617
+Relative error: 0.0202 (2.0163 %)
+
+Error for FE with dtODE = 0.020 and dtPDE = 0.040:
+Mean absolute error: 1.3464
+Mean square error: 19.7948
+Relative error: 0.1028 (10.2786 %)
+
+Error for FE with dtODE = 0.020 and dtPDE = 0.060:
+Mean absolute error: 2.4260
+Mean square error: 61.4441
+Relative error: 0.1811 (18.1092 %)
+
+Error for FE with dtODE = 0.020 and dtPDE = 0.080:
+Mean absolute error: 3.3542
+Mean square error: 106.8943
+Relative error: 0.2389 (23.8856 %)
+
+Error for FE with dtODE = 0.020 and dtPDE = 0.100:
+Simulation diverged
+
+Error for FE with dtODE = 0.020 and dtPDE = 0.120:
+Simulation diverged
+
+Error for FE with dtODE = 0.020 and dtPDE = 0.140:
+Simulation diverged
+
+Error for FE with dtODE = 0.020 and dtPDE = 0.160:
+Simulation diverged
+
+Error for FE with dtODE = 0.020 and dtPDE = 0.180:
+Simulation diverged
+
+Error for FE with dtODE = 0.020 and dtPDE = 0.200:
+Simulation diverged
+
+Error for FE with dtODE = 0.040 and dtPDE = 0.040:
+Mean absolute error: 0.5926
+Mean square error: 4.2291
+Relative error: 0.0475 (4.7510 %)
+
+Error for FE with dtODE = 0.040 and dtPDE = 0.080:
+Mean absolute error: 2.6554
+Mean square error: 73.9323
+Relative error: 0.1986 (19.8645 %)
+
+Error for FE with dtODE = 0.040 and dtPDE = 0.120:
+Simulation diverged
+
+Error for FE with dtODE = 0.040 and dtPDE = 0.160:
+Simulation diverged
+
+Error for FE with dtODE = 0.040 and dtPDE = 0.200:
+Simulation diverged
+
+Error for FE with dtODE = 0.060 and dtPDE = 0.060:
+Mean absolute error: 0.9445
+Mean square error: 10.9313
+Relative error: 0.0764 (7.6383 %)
+
+Error for FE with dtODE = 0.060 and dtPDE = 0.120:
+Simulation diverged
+
+Error for FE with dtODE = 0.060 and dtPDE = 0.180:
+Simulation diverged
+
+Error for FE with dtODE = 0.080 and dtPDE = 0.080:
+Mean absolute error: 1.3013
+Mean square error: 20.2164
+Relative error: 0.1039 (10.3875 %)
+
+Error for FE with dtODE = 0.080 and dtPDE = 0.160:
+Simulation diverged
+
+Error for FE with dtODE = 0.100 and dtPDE = 0.100:
+Simulation diverged
+
+Error for FE with dtODE = 0.100 and dtPDE = 0.200:
+Simulation diverged
+
+Error for FE with dtODE = 0.200 and dtPDE = 0.200:
+Simulation diverged

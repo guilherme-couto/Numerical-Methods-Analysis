@@ -1,0 +1,7 @@
+S1 velocity: 0.537634 m/s
+Total execution time: 21.960394 seconds
+PDE/ODE ratio: 3
+ODE execution time: 0.347299 seconds
+PDE execution time: 0.175121 seconds
+Fibrosis factor: 0.200000
+Fibrosis region: (35, 35) to (65, 65)

@@ -1,5 +1,5 @@
 S1 velocity: 0.592105 m/s
-Total execution time: 3.186265 seconds
+Total execution time: 21.410284 seconds
 PDE/ODE ratio: 1
-ODE execution time: 0.840289 seconds
-PDE execution time: 0.894210 seconds
+ODE execution time: 0.329610 seconds
+PDE execution time: 0.411721 seconds

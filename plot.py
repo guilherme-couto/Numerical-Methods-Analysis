@@ -5,6 +5,8 @@ import os
 import imageio.v2
 import math
 
+from execution import *
+
 def create_gif(num_threads, dt_ODE, dt_PDE, method, cell_model):
 
     times = []
@@ -56,24 +58,20 @@ def create_gif(num_threads, dt_ODE, dt_PDE, method, cell_model):
         os.remove(png)
 
 def main():
-    # Possible parameters
-    cell_model = 'AFHN'
-    numbers_threads = [4]
-    dts_ODE = [0.02, 0.04, 0.06, 0.08, 0.1, 0.2]
-    methods = ['ADI1', 'SSI-ADI', 'ADI1.5', 'FE']
-    
-    for number_threads in numbers_threads:
-        for method in methods:
-            for dt_ODE in dts_ODE:
-                dts_PDE = [dt_ODE]
-                if method == 'ADI1' or method == 'FE':
-                    i = 2
-                    while dt_ODE * i <= 0.2:
-                        dts_PDE.append(dt_ODE * i)
-                        i += 1
-                for dt_PDE in dts_PDE:
-                    create_gif(number_threads, f'{dt_ODE:.3f}', f'{dt_PDE:.3f}', method, cell_model)
-                    print(f'Gif created for {number_threads} threads, {dt_ODE} dt_ODE, {dt_PDE} dt_PDE and {method} method.')
+        
+    for cell_model in cell_models:
+        for number_threads in numbers_threads:
+            for method in methods:
+                for dt_ODE in dts_ODE:
+                    dts_PDE = [dt_ODE]
+                    if method == 'ADI1' or method == 'FE':
+                        i = 2
+                        while dt_ODE * i <= max_dt_PDE:
+                            dts_PDE.append(dt_ODE * i)
+                            i += 1
+                    for dt_PDE in dts_PDE:
+                        create_gif(number_threads, f'{dt_ODE:.3f}', f'{dt_PDE:.3f}', method, cell_model)
+                        print(f'Gif created for {cell_model} with {number_threads} threads, {dt_ODE} dt_ODE, {dt_PDE} dt_PDE and {method} method.')
 
 if __name__ == '__main__':
     main()

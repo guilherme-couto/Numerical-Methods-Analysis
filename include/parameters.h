@@ -39,6 +39,19 @@ double stim2yMin = 0.0;             // Stimulation y min -> cm
 
 //############################################
 //##                                        ##
+//##         Fibrosis parameters            ##
+//##                                        ##
+//############################################
+double fibrosisFactor = 0.2;        // Fibrosis rate -> dimensionless
+double fibrosisMinX = 0.7;          // Fibrosis x min -> cm
+double fibrosisMaxX = 1.3;          // Fibrosis x max -> cm
+double fibrosisMinY = 0.7;          // Fibrosis y min -> cm
+double fibrosisMaxY = 1.3;          // Fibrosis y max -> cm
+
+
+
+//############################################
+//##                                        ##
 //##     Adapted FitzHugh-Nagumo (AFHN)     ##
 //##                                        ##
 //############################################

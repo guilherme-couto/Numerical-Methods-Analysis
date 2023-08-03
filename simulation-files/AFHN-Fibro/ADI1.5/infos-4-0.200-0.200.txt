@@ -1,0 +1,6 @@
+Total execution time: 10.701927 seconds
+PDE/ODE ratio: 1
+ODE execution time: 0.200830 seconds
+PDE execution time: 0.260940 seconds
+Fibrosis factor: 0.200000
+Fibrosis region: (35, 35) to (65, 65)
