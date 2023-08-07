@@ -1,5 +1,30 @@
 #include "./include/includes.h"
 
+void resetSimulationParameters()
+{
+    // For stimulation
+    Istim = 0.0;
+
+    // For time step
+    timeStepCounter = 0;
+    timeStep = 0.0;
+
+    // For execution time
+    startTotal = 0.0;
+    finishTotal = 0.0;
+    elapsedTotal = 0.0;
+    startODE = 0.0;
+    finishODE = 0.0;
+    elapsedODE = 0.0;
+    startPDE = 0.0;
+    finishPDE = 0.0;
+    elapsedPDE = 0.0;
+
+    // For velocity
+    S1VelocityTag = true;
+    S1Velocity = 0.0;
+}
+
 /*-------------
 Main function
 --------------*/
@@ -25,7 +50,25 @@ int main(int argc, char *argv[])
         fibrosisFactor = 1.0;
     }
     bool options[] = {fibrosis, true, false, false, false, false, false};
+    
     runMethod(options, method, deltatODE, deltatPDE, numberThreads);
+
+    // Measure Vulnerable Window
+    // Update VWTag
+    if (VWTag == false)
+    {
+        VWTag = true;
+        stim2Begin = measureVWFrom;
+        resetSimulationParameters();
+        runMethod(options, method, deltatODE, deltatPDE, numberThreads);
+    }
+    // Update S2 begin
+    while (stim2Begin + 1.0 <= measureVWTo)
+    {
+        stim2Begin += 1.0;
+        resetSimulationParameters();
+        runMethod(options, method, deltatODE, deltatPDE, numberThreads);
+    }
 
     return 0;
 }
