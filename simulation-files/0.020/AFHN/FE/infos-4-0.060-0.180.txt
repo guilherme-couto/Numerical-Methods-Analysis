@@ -1,0 +1,7 @@
+S1 velocity: 0.709220 m/s
+S2 begin: 120.0 ms
+PDE/ODE ratio: 3
+ODE execution time: 0.253934 seconds
+PDE execution time: 0.012086 seconds
+Real total execution time: 0.064932 seconds
+Vulnerability Window: [999.0, 0.0] ms

@@ -52,6 +52,8 @@ int main(int argc, char *argv[])
     bool options[] = {fibrosis, true, false, false, false, false, false};
     
     runMethod(options, method, deltatODE, deltatPDE, numberThreads);
+    resetSimulationParameters();
+    runMethodMeasuringOnlyTotalTime(options, method, deltatODE, deltatPDE, numberThreads);
 
     // Measure Vulnerable Window
     // Update VWTag
