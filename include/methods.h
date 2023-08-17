@@ -130,14 +130,14 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
     
     // File pointers
     char aux[MAX_STRING_SIZE];
-    if (VWTag == false)
+    if (VWTag == false || saveDataToGif == true)
     {
         sprintf(aux, "%s/%s", pathToSaveData, framesFileName);
         fpFrames = fopen(aux, "w");
         sprintf(aux, "%s/%s", pathToSaveData, infosFileName);
         fpInfos = fopen(aux, "w");
     }
-    else
+    if (VWTag == true || saveDataToGif == false)
     {
         sprintf(aux, "%s/%s", pathToSaveData, framesFileName);
         fpFrames = fopen(aux, "a");
@@ -158,7 +158,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
         shared(V, W, N, M, L, T, D, phi, deltatODE, deltatPDE, time, timeStep, timeStepCounter, PdeOdeRatio, \
         fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
         discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
-        c_, d_, Vtilde, Wtilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, \
+        c_, d_, Vtilde, Wtilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, saveDataToGif, \
         Rv, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
         {
             while (timeStepCounter < M)
@@ -257,7 +257,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                     if (VWTag == false)
                     {
                         // Write frames to file
-                        if (timeStepCounter % saverate == 0)
+                        if (timeStepCounter % saverate == 0 && saveDataToGif == true)
                         {
                             fprintf(fpFrames, "%lf\n", time[timeStepCounter]);
                             for (i = 0; i < N; i++)
@@ -309,7 +309,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
         shared(V, W, N, M, L, T, D, phi, deltatODE, deltatPDE, time, timeStep, timeStepCounter, PdeOdeRatio, \
         fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
         discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
-        c_, d_, Vtilde, Wtilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, \
+        c_, d_, Vtilde, Wtilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, saveDataToGif, \
         Rv, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
         {
             while (timeStepCounter < M)
@@ -449,7 +449,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                     if (VWTag == false)
                     {
                         // Write frames to file
-                        if (timeStepCounter % saverate == 0)
+                        if (timeStepCounter % saverate == 0 && saveDataToGif == true)
                         {
                             fprintf(fpFrames, "%lf\n", time[timeStepCounter]);
                             for (i = 0; i < N; i++)
@@ -501,7 +501,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
         shared(V, W, N, M, L, T, D, phi, deltatODE, deltatPDE, time, timeStep, timeStepCounter, PdeOdeRatio, \
         fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
         discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
-        c_, d_, Vtilde, Wtilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, \
+        c_, d_, Vtilde, Wtilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, saveDataToGif, \
         Rv, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
         {
             while (timeStepCounter < M)
@@ -640,7 +640,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                     if (VWTag == false)
                     {
                         // Write frames to file
-                        if (timeStepCounter % saverate == 0)
+                        if (timeStepCounter % saverate == 0 && saveDataToGif == true)
                         {
                             fprintf(fpFrames, "%lf\n", time[timeStepCounter]);
                             for (i = 0; i < N; i++)
@@ -692,7 +692,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
         shared(V, W, N, M, L, T, D, phi, deltatODE, deltatPDE, time, timeStep, timeStepCounter, PdeOdeRatio, \
         fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
         discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
-        c_, d_, Vtilde, Wtilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, \
+        c_, d_, Vtilde, Wtilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, saveDataToGif, \
         Rv, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
         {
             while (timeStepCounter < M)
@@ -791,7 +791,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                     if (VWTag == false)
                     {
                         // Write frames to file
-                        if (timeStepCounter % saverate == 0)
+                        if (timeStepCounter % saverate == 0 && saveDataToGif == true)
                         {
                             fprintf(fpFrames, "%lf\n", time[timeStepCounter]);
                             for (i = 0; i < N; i++)
@@ -845,20 +845,23 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
             fprintf(fpInfos, "Fibrosis region: (%.2lf, %.2lf) to (%.2lf, %.2lf)\n", fibrosisMinX, fibrosisMinY, fibrosisMaxX, fibrosisMaxY);
         }
 
-        char lastFrameFileName[MAX_STRING_SIZE];
-        sprintf(lastFrameFileName, "last-%d-%.3lf-%.3lf.txt", numberThreads, deltatODE, deltatPDE);
-        FILE *fpLast;
-        sprintf(aux, "%s/%s", pathToSaveData, lastFrameFileName);
-        fpLast = fopen(aux, "w");
-        for (int i = 0; i < N; i++)
+        if (saveDataToError == true)
         {
-            for (int j = 0; j < N; j++)
+            char lastFrameFileName[MAX_STRING_SIZE];
+            sprintf(lastFrameFileName, "last-%d-%.3lf-%.3lf.txt", numberThreads, deltatODE, deltatPDE);
+            FILE *fpLast;
+            sprintf(aux, "%s/%s", pathToSaveData, lastFrameFileName);
+            fpLast = fopen(aux, "w");
+            for (int i = 0; i < N; i++)
             {
-                fprintf(fpLast, "%lf ", V[i][j]);
+                for (int j = 0; j < N; j++)
+                {
+                    fprintf(fpLast, "%lf ", V[i][j]);
+                }
+                fprintf(fpLast, "\n");
             }
-            fprintf(fpLast, "\n");
-        }
-        fclose(fpLast);        
+            fclose(fpLast);     
+        }   
     }
 
     // If vulnerability window is being measure, write last frame to file
