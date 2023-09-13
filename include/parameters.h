@@ -10,9 +10,9 @@
 //##                                        ##
 //############################################
 double L = 2;           // Length of each side (cm)
-double deltax = 0.02;   // Spatial step -> cm
-double deltay = 0.02;   // Spatial step -> cm
-double T = 300.0;       // Simulation time -> ms
+double deltax = 0.005;   // Spatial step -> cm
+double deltay = 0.005;   // Spatial step -> cm
+double T = 320.0;       // Simulation time -> ms
 
 
 
@@ -23,13 +23,13 @@ double T = 300.0;       // Simulation time -> ms
 //############################################
 double stimStrength = 100.0;         
 
-double stim1Begin = 0.0;            // Stimulation start time -> ms
-double stim1Duration = 1.0;         // Stimulation duration -> ms
+double stim1Begin = 400.0;            // Stimulation start time -> ms
+double stim1Duration = 2.0;         // Stimulation duration -> ms
 double stim1xLimit = 0.2;           // Stimulation x limit -> cm
 double stim1yLimit = 2.0;           // Stimulation y limit -> cm ( = L)
 
-double stim2Begin = 120.0;          // Stimulation start time -> ms
-double stim2Duration = 3.0;         // Stimulation duration -> ms
+double stim2Begin = 420.0;          // Stimulation start time -> ms
+double stim2Duration = 2.0;         // Stimulation duration -> ms
 double stim2xMax = 1.0;             // Stimulation x max -> cm
 double stim2yMax = 1.0;             // Stimulation y max -> cm
 double stim2xMin = 0.0;             // Stimulation x min -> cm

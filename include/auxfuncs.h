@@ -87,7 +87,7 @@ void ThomasAlgorithm2nd(double *d, double *solution, unsigned long N, double phi
 }
 
 // Adapted for 2nd order approximation
-double iDiffusion2nd(int i, int j, int N, double **V)
+double iDiffusion2nd(int i, int j, int N, double **V, int discFibxMax, int discFibxMin, int discFibyMax, int discFibyMin)
 {
     double result = 0.0;
     if (i == 0)
@@ -103,11 +103,15 @@ double iDiffusion2nd(int i, int j, int N, double **V)
         result = V[i - 1][j] - 2.0*V[i][j] + V[i + 1][j];
     }
 
+    if ((i >= discFibyMin && i <= discFibyMax) && (j >= discFibxMin && j <= discFibxMax))
+    {
+        result *= fibrosisFactor;
+    }
     return result;
 }
 
 // Adapted for 2nd order approximation
-double jDiffusion2nd(int i, int j, int N, double **V)
+double jDiffusion2nd(int i, int j, int N, double **V, int discFibxMax, int discFibxMin, int discFibyMax, int discFibyMin)
 {
     double result = 0.0;
     if (j == 0)
@@ -123,6 +127,10 @@ double jDiffusion2nd(int i, int j, int N, double **V)
         result = V[i][j - 1] - 2.0*V[i][j] + V[i][j + 1];
     }
 
+    if ((i >= discFibyMin && i <= discFibyMax) && (j >= discFibxMin && j <= discFibxMax))
+    {
+        result *= fibrosisFactor;
+    }
     return result;
 }
 
@@ -215,6 +223,54 @@ double stimulus(int i, int j, int timeStep, int discS1xLimit, int discS1yLimit, 
     return 0.0;
 }
 
+void writeToCheckpointFile(float **matrix, int N, double lastCheckpointTime, double timeStep, double deltatODE, double deltatPDE, double deltax, int spatialRate, char *method, char *cellModel, bool haveFibrosis, double fibrosisFactor)
+{
+    double presentTime = omp_get_wtime();
+
+    FILE *file = fopen("checkpoint.txt", "w");
+    fprintf(file, "CHECKPOINT\n");
+
+    fprintf(file, "\nSimultation T: %.3lf ms\n", T);
+    fprintf(file, "Simulation L: %.3lf cm\n", L);
+    fprintf(file, "Method: %s\n", method);
+    fprintf(file, "Cell model: %s\n", cellModel);
+    if (haveFibrosis)
+    {
+        fprintf(file, "Fibrosis factor: %.2lf\n", fibrosisFactor);
+    }
+    else
+    {
+        fprintf(file, "Without fibrosis\n");
+    }
+
+    fprintf(file, "\nDelta t (ODE): %.5lf ms\n", deltatODE);
+    fprintf(file, "Delta t (PDE): %.5lf ms\n", deltatPDE);
+    fprintf(file, "Delta x: %.5lf cm\n", deltax);
+
+    fprintf(file, "\nActual time step: %.5lf ms\n", timeStep);
+    double porcentageOfTotalTime = (timeStep / T) * 100;
+    fprintf(file, "Porcentage of total time: %.2lf %%\n", porcentageOfTotalTime);
+    fprintf(file, "Time since last checkpoint: %.3lf seconds\n", presentTime - lastCheckpointTime);
+    
+    fprintf(file, "\nMatrix (with spatialRate = %d):\n", spatialRate);
+    for (int i = 0; i < N; i+=spatialRate)
+    {
+        for (int j = 0; j < N; j+=spatialRate)
+        {
+            fprintf(file, "%lf ", matrix[i][j]);
+            // Check if NaN
+            if (matrix[i][j] != matrix[i][j])
+            {
+                printf("NaN found at (%d, %d)\n", i, j);
+                fprintf(file, "\nNaN found at (%d, %d)\n", i, j);
+                exit(1);
+            }
+        }
+        fprintf(file, "\n");
+    }
+    fclose(file);
+}
+
 // TODO: fix this function. Allocation with function call is not working
 // void allocateAndPopulateTime(int M, double *time, double deltatPDE)
 // {
@@ -243,6 +299,73 @@ void initializeVariables(int N, double **V, double **W)
             W[i][k] = W_init;
         }
     }
+}
+
+void initializeVariablesWithSpiral(int N, double **V, double **W, double dxActual, int rate)
+{
+	double dxRef = 0.00125;
+    int NRef = round(L / dxRef) + 1;
+	
+	int MAX_LINE_LENGTH = 20;
+	char lineV[MAX_LINE_LENGTH];
+    char lineW[MAX_LINE_LENGTH];
+	char *ptr;
+	
+	int counter = 0;
+	
+	FILE *fileV, *fileW;
+	fileV = fopen("./spiral-conditions/spiralV.txt", "r");
+    if(fileV == NULL)
+    {
+		printf("No file for V initial condition\n");
+        return;
+	}
+	fileW = fopen("./spiral-conditions/spiralW.txt", "r");
+    if(fileW == NULL)
+    {
+		printf("No file for W initial condition\n");
+        return;
+	}
+	
+	// Read initial conditions
+    int a = 0;
+    int b = 0;
+    for (int i = 0; i < NRef; i++)
+    {
+        for (int k = 0; k < NRef; k++)
+        {
+            fgets(lineV, MAX_LINE_LENGTH, fileV);
+            fgets(lineW, MAX_LINE_LENGTH, fileW);
+
+            if (i % rate == 0 && k % rate == 0)
+            {
+                V[a][b] = strtod(lineV, &ptr);
+                W[a][b] = strtod(lineW, &ptr);
+                b++;
+                if (b == N)
+                {
+                    a++;
+                    b = 0;
+                }
+                // printf("i = %d, k = %d, a = %d, b = %d\n", i, k, a, b);
+            }
+        }
+    }
+    
+    fclose(fileV);
+    fclose(fileW);
+
+    // FILE *fpLast;
+    // fpLast = fopen("frameSpiralV", "w");
+    // for (int i = 0; i < N; i++)
+    // {
+    //     for (int j = 0; j < N; j++)
+    //     {
+    //         fprintf(fpLast, "%lf ", V[i][j]);
+    //     }
+    //     fprintf(fpLast, "\n");
+    // }
+    // fclose(fpLast);
 }
 
 // Allocate memory
