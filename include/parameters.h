@@ -10,8 +10,8 @@
 //##                                        ##
 //############################################
 double L = 2;           // Length of each side (cm)
-double deltax = 0.005;   // Spatial step -> cm
-double deltay = 0.005;   // Spatial step -> cm
+double deltax = 0.04;   // Spatial step -> cm
+double deltay = 0.04;   // Spatial step -> cm
 double T = 320.0;       // Simulation time -> ms
 
 
@@ -80,6 +80,194 @@ double W_init = 0.0;    // Initial recovery variable -> dimensionless
 
 
 
+//############################################
+//##                                        ##
+//##     Minimal Ventricular Model (MV)     ##
+//##                                        ##
+//############################################
+#if defined(MV)
+#if defined(EPI) || defined(M) || defined(ENDO) || defined(PB) || defined(TNNP)
+/*---------------------------------------------------------
+Parameters ofr Bueno-Orovio Minimal Ventricular Model
+https://doi.org/10.1016/j.jtbi.2008.03.029
+---------------------------------------------------------*/
+
+/*----------------------------
+Model parameters
+----------------------------*/
+
+// EPI parameters
+#ifdef EPI
+double u_o = 0.0;
+double u_u = 1.55;
+double theta_v = 0.3;
+double theta_w = 0.13;
+double theta_vminus = 0.006;
+double theta_o = 0.006;
+double tau_v1minus = 60.0;
+double tau_v2minus = 1150.0;
+double tau_vplus = 1.4506;
+double tau_w1minus = 60.0;
+double tau_w2minus = 15.0;
+double k_wminus = 65.0;
+double u_wminus = 0.03;
+double tau_wplus = 200.0;
+double tau_fi = 0.11;
+double tau_o1 = 400.0;
+double tau_o2 = 6.0;
+double tau_so1 = 30.0181;
+double tau_so2 = 0.9957;
+double k_so = 2.0458;
+double u_so = 0.65;
+double tau_s1 = 2.7342;
+double tau_s2 = 16.0;
+double k_s = 2.0994;
+double u_s = 0.9087;
+double tau_si = 1.8875;
+double tau_winf = 0.07;
+double w_infstar = 0.94;
+#endif
+
+// ENDO parameters
+#ifdef ENDO
+double u_o = 0.0;
+double u_u = 1.56;
+double theta_v = 0.3;
+double theta_w = 0.13;
+double theta_vminus = 0.2;
+double theta_o = 0.006;
+double tau_v1minus = 75.0;
+double tau_v2minus = 10.0;
+double tau_vplus = 1.4506;
+double tau_w1minus = 6.0;
+double tau_w2minus = 140.0;
+double k_wminus = 200.0;
+double u_wminus = 0.016;
+double tau_wplus = 280.0;
+double tau_fi = 0.1;
+double tau_o1 = 470.0;
+double tau_o2 = 6.0;
+double tau_so1 = 40.0;
+double tau_so2 = 1.2;
+double k_so = 2.0;
+double u_so = 0.65;
+double tau_s1 = 2.7342;
+double tau_s2 = 2.0;
+double k_s = 2.0994;
+double u_s = 0.9087;
+double tau_si = 2.9013;
+double tau_winf = 0.0273;
+double w_infstar = 0.78;
+#endif
+
+// M parameters
+#ifdef M
+double u_o = 0.0;
+double u_u = 1.61;
+double theta_v = 0.3;
+double theta_w = 0.13;
+double theta_vminus = 0.1;
+double theta_o = 0.005;
+double tau_v1minus = 80.0;
+double tau_v2minus = 1.4506;
+double tau_vplus = 1.4506;
+double tau_w1minus = 70.0;
+double tau_w2minus = 8.0;
+double k_wminus = 200.0;
+double u_wminus = 0.016;
+double tau_wplus = 280.0;
+double tau_fi = 0.078;
+double tau_o1 = 410.0;
+double tau_o2 = 7.0;
+double tau_so1 = 91.0;
+double tau_so2 = 0.8;
+double k_so = 2.1;
+double u_so = 0.6;
+double tau_s1 = 2.7342;
+double tau_s2 = 4.0;
+double k_s = 2.0994;
+double u_s = 0.9087;
+double tau_si = 3.3849;
+double tau_winf = 0.01;
+double w_infstar = 0.5;
+#endif
+
+// PB parameters
+#ifdef PB
+double u_o = 0.0;
+double u_u = 1.45;
+double theta_v = 0.35;
+double theta_w = 0.13;
+double theta_vminus = 0.175;
+double theta_o = 0.006;
+double tau_v1minus = 10.0;
+double tau_v2minus = 1150.0;
+double tau_vplus = 1.4506;
+double tau_w1minus = 140.0;
+double tau_w2minus = 6.25;
+double k_wminus = 65.0;
+double u_wminus = 0.015;
+double tau_wplus = 326.0;
+double tau_fi = 0.105;
+double tau_o1 = 400.0;
+double tau_o2 = 6.0;
+double tau_so1 = 30.0181;
+double tau_so2 = 0.9957;
+double k_so = 2.0458;
+double u_so = 0.65;
+double tau_s1 = 2.7342;
+double tau_s2 = 16.0;
+double k_s = 2.0994;
+double u_s = 0.9087;
+double tau_si = 1.8875;
+double tau_winf = 0.175;
+double w_infstar = 0.9;
+#endif
+
+// TNNP parameters
+#ifdef TNNP
+double u_o = 0.0;
+double u_u = 1.58;
+double theta_v = 0.3;
+double theta_w = 0.015;
+double theta_vminus = 0.015;
+double theta_o = 0.006;
+double tau_v1minus = 60.0;
+double tau_v2minus = 1150.0;
+double tau_vplus = 1.4506;
+double tau_w1minus = 70.0;
+double tau_w2minus = 20.0;
+double k_wminus = 65.0;
+double u_wminus = 0.03;
+double tau_wplus = 280.0;
+double tau_fi = 0.11;
+double tau_o1 = 6.0;
+double tau_o2 = 6.0;
+double tau_so1 = 43.0;
+double tau_so2 = 0.2;
+double k_so = 2.0;
+double u_so = 0.65;
+double tau_s1 = 2.7342;
+double tau_s2 = 3.0;
+double k_s = 2.0994;
+double u_s = 0.9087;
+double tau_si = 2.8723;
+double tau_winf = 0.07;
+double w_infstar = 0.94;
+#endif
+
+/*----------------
+Initial Conditions
+----------------*/
+double U_init = 0.0;    // Initial membrane potential -> mV
+double V_init = 1.0;    // Variable -> dimensionless
+double W_init = 1.0;    // Variable -> dimensionless
+double S_init = 0.0;    // Variable -> dimensionless
+#endif // EPI || M || ENDO || PB || TNNP
+#endif // MV
+
+
+
 //###########################################
 //##                                       ##
 //##     ten Tusscher 2006 model (TT2)     ##
@@ -127,14 +315,14 @@ double G_K1 = 5.405;        // Maximal I_K1 (late rectifier potassium current) c
 #if defined(EPI) || defined(M)
 double G_to = 0.294;        // Maximal I_to (transient outward potassium current) conductance -> nS/pF (epi and M cells)
 #endif
-#ifdef ENDO
+#if defined(ENDO)
 double G_to = 0.073;        // Maximal I_to (transient outward potassium current) conductance -> nS/pF (endo cells)
 #endif
 double G_Kr = 0.153;        // Maximal I_Kr (rapidly activating delayed rectifier potassium current) conductance -> nS/pF
 #if defined(EPI) || defined(ENDO)
 double G_Ks = 0.392;        // Maximal I_Ks (slowly activating delayed rectifier potassium current) conductance -> nS/pF (epi and endo cells)
 #endif
-#ifdef M
+#if defined(M)
 double G_Ks = 0.098;        // Maximal I_Ks (slowly activating delayed rectifier potassium current) conductance -> nS/pF (M cells)
 #endif
 double p_KNa = 0.03;        // Relative I_Ks permeability to Na+ over K+ -> dimensionless
@@ -181,7 +369,7 @@ double K_bufss = 0.00025;   // Half-saturation constant of subspace buffer -> mM
 Initial Conditions for epicardium cells
 from https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3263775/
 ------------------------------------------------------------*/
-#ifdef EPI
+#if defined(EPI)
 double V_init = -85.23;       // Initial membrane potential -> mV
 double X_r1_init = 0.00621;   // Initial rapid time-dependent potassium current Xr1 gate -> dimensionless
 double X_r2_init = 0.4712;    // Initial rapid time-dependent potassium current Xr2 gate -> dimensionless

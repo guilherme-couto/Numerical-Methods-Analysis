@@ -347,25 +347,12 @@ void initializeVariablesWithSpiral(int N, double **V, double **W, double dxActua
                     a++;
                     b = 0;
                 }
-                // printf("i = %d, k = %d, a = %d, b = %d\n", i, k, a, b);
             }
         }
     }
     
     fclose(fileV);
     fclose(fileW);
-
-    // FILE *fpLast;
-    // fpLast = fopen("frameSpiralV", "w");
-    // for (int i = 0; i < N; i++)
-    // {
-    //     for (int j = 0; j < N; j++)
-    //     {
-    //         fprintf(fpLast, "%lf ", V[i][j]);
-    //     }
-    //     fprintf(fpLast, "\n");
-    // }
-    // fclose(fpLast);
 }
 
 // Allocate memory
@@ -382,6 +369,49 @@ void initializeVariablesWithSpiral(int N, double **V, double **W, double dxActua
 //     }
 // }
 #endif // AFHN
+
+
+
+//###########################################
+//##                                       ##
+//##     Minimal Ventricular Model (MV)    ##
+//##                                       ##
+//###########################################
+#if defined(MV)
+// Initialize variables
+void initializeVariables(int N, double **U, double **V, double **W, double **S)
+{
+    for (int i = 0; i < N; i++)
+    {
+        for (int j = 0; j < N; j++)
+        {
+            U[i][j] = U_init;
+            V[i][j] = V_init;
+            W[i][j] = W_init;
+            S[i][j] = S_init;
+        }
+    }
+}
+
+// Standard Heaviside function
+double H(double x)
+{
+    if (x > 0.0)
+    {
+        return 1.0;
+    }
+    else
+    {
+        return 0.0;
+    }
+}
+
+// Convert the dimensionless voltage variable U to dimensions of mV
+double rescaleU(double U)
+{
+    return 85.7*U - 84.0;
+}
+#endif // MV
 
 
 

@@ -4,10 +4,10 @@ import os
 import math
 
 # Possible parameters
-dxs = ['0.005']
-cell_models = ['AFHN-Fibro']
-numbers_threads = [4]
-dts_ODE = [0.08]
+dxs = ['0.040']
+cell_models = ['AFHN', 'AFHN-Fibro']
+numbers_threads = [6]
+dts_ODE = [0.01, 0.02, 0.04, 0.08]
 max_dt_PDE = 0.0
 methods = ['ADI1', 'SSI-ADI']
 repeats_to_speedup = 5
