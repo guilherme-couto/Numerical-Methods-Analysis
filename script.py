@@ -1,6 +1,9 @@
 from execution import *
 import sys
 
+# Compile
+os.system(f'gcc -o main main.c -O3 -lm -lpthread -fopenmp')
+
 # Check arguments
 if len(sys.argv) == 1:
     for dx in dxs:
