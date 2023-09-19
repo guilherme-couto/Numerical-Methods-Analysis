@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
             {
                 fibrosisFactor = 1.0;
             }
-            runMethodConvergenceAnalysis(fibrosis, method, delta_x, delta_t, numberThreads, spatialRate, rate);
+            //runMethodConvergenceAnalysis(fibrosis, method, delta_x, delta_t, numberThreads, spatialRate, rate);
             return 0;
         }
         printf("Usage: %s <num_threads> <delta_t ODE (ms)> <delta_t PDE (ms)> <method> <fibrosis (0-false or 1-true)> <vulnerability window (0-false or 1-true)> <only speed (0-false or 1-true)>\n", argv[0]);
@@ -90,9 +90,9 @@ int main(int argc, char *argv[])
         options[1] = false;
         options[2] = false;
         options[3] = false;
-        //runMethod(options, method, deltatODE, deltatPDE, numberThreads);
+        runMethod(options, method, deltatODE, deltatPDE, numberThreads);
         resetSimulationParameters();
-        runMethodOnlyTotalTimeAnalysis(options, method, deltatODE, deltatPDE, numberThreads);
+        //runMethodOnlyTotalTimeAnalysis(options, method, deltatODE, deltatPDE, numberThreads);
     }
     
 

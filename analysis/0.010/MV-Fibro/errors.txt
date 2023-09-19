@@ -1,0 +1,170 @@
+
+Error for OS-ADI with dx = 0.010, dtODE = 0.010 and dtPDE = 0.010:
+Mean absolute error: 0.7434
+Mean square error: 12.6956
+Relative error: 0.1564 (15.6418 %)
+
+Error for OS-ADI with dx = 0.010, dtODE = 0.020 and dtPDE = 0.020:
+Mean absolute error: 1.3367
+Mean square error: 33.2786
+Relative error: 0.2532 (25.3247 %)
+
+Error for OS-ADI with dx = 0.010, dtODE = 0.040 and dtPDE = 0.040:
+Mean absolute error: 2.4691
+Mean square error: 82.2314
+Relative error: 0.3981 (39.8089 %)
+
+Error for OS-ADI with dx = 0.010, dtODE = 0.080 and dtPDE = 0.080:
+Mean absolute error: 4.4793
+Mean square error: 181.1452
+Relative error: 0.5908 (59.0846 %)
+
+Error for OS-ADI with dx = 0.010, dtODE = 0.160 and dtPDE = 0.160:
+Mean absolute error: 7.7472
+Mean square error: 355.9692
+Relative error: 0.8283 (82.8261 %)
+
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+
+
+Error for SSI-ADI with dx = 0.010, dtODE = 0.010 and dtPDE = 0.010:
+Mean absolute error: 0.0095
+Mean square error: 0.0030
+Relative error: 0.0024 (0.2399 %)
+
+Error for SSI-ADI with dx = 0.010, dtODE = 0.020 and dtPDE = 0.020:
+Mean absolute error: 0.0299
+Mean square error: 0.0142
+Relative error: 0.0052 (0.5231 %)
+
+Error for SSI-ADI with dx = 0.010, dtODE = 0.040 and dtPDE = 0.040:
+Mean absolute error: 0.0957
+Mean square error: 0.1368
+Relative error: 0.0162 (1.6238 %)
+
+Error for SSI-ADI with dx = 0.010, dtODE = 0.080 and dtPDE = 0.080:
+Mean absolute error: 0.3122
+Mean square error: 1.9546
+Relative error: 0.0614 (6.1375 %)
+
+Error for SSI-ADI with dx = 0.010, dtODE = 0.160 and dtPDE = 0.160:
+Mean absolute error: 1.0798
+Mean square error: 24.1557
+Relative error: 0.2158 (21.5760 %)
+
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+
+
+Error for MOSI-ADI with dx = 0.010, dtODE = 0.010 and dtPDE = 0.010:
+Mean absolute error: 0.1214
+Mean square error: 0.3380
+Relative error: 0.0255 (2.5522 %)
+
+Error for MOSI-ADI with dx = 0.010, dtODE = 0.020 and dtPDE = 0.020:
+Mean absolute error: 0.2175
+Mean square error: 1.0047
+Relative error: 0.0440 (4.4002 %)
+
+Error for MOSI-ADI with dx = 0.010, dtODE = 0.040 and dtPDE = 0.040:
+Mean absolute error: 0.4084
+Mean square error: 3.8154
+Relative error: 0.0857 (8.5750 %)
+
+Error for MOSI-ADI with dx = 0.010, dtODE = 0.080 and dtPDE = 0.080:
+Mean absolute error: 0.6632
+Mean square error: 9.6026
+Relative error: 0.1360 (13.6036 %)
+
+Error for MOSI-ADI with dx = 0.010, dtODE = 0.160 and dtPDE = 0.160:
+Mean absolute error: 1.0021
+Mean square error: 16.5562
+Relative error: 0.1786 (17.8625 %)
+
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+
+
+Error for MOSI-ADI.2 with dx = 0.010, dtODE = 0.010 and dtPDE = 0.010:
+Mean absolute error: 0.3205
+Mean square error: 2.1889
+Relative error: 0.0649 (6.4949 %)
+
+Error for MOSI-ADI.2 with dx = 0.010, dtODE = 0.020 and dtPDE = 0.020:
+Mean absolute error: 0.6380
+Mean square error: 8.2308
+Relative error: 0.1259 (12.5945 %)
+
+Error for MOSI-ADI.2 with dx = 0.010, dtODE = 0.040 and dtPDE = 0.040:
+Mean absolute error: 1.2109
+Mean square error: 26.5882
+Relative error: 0.2264 (22.6363 %)
+
+Error for MOSI-ADI.2 with dx = 0.010, dtODE = 0.080 and dtPDE = 0.080:
+Mean absolute error: 2.2206
+Mean square error: 71.5848
+Relative error: 0.3714 (37.1425 %)
+
+Error for MOSI-ADI.2 with dx = 0.010, dtODE = 0.160 and dtPDE = 0.160:
+Mean absolute error: 3.9002
+Mean square error: 162.4388
+Relative error: 0.5595 (55.9507 %)
+
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+
+
+Error for MOSI-ADI.3 with dx = 0.010, dtODE = 0.010 and dtPDE = 0.010:
+Mean absolute error: 0.1192
+Mean square error: 0.2800
+Relative error: 0.0232 (2.3230 %)
+
+Error for MOSI-ADI.3 with dx = 0.010, dtODE = 0.020 and dtPDE = 0.020:
+Mean absolute error: 0.2375
+Mean square error: 1.1060
+Relative error: 0.0462 (4.6167 %)
+
+Error for MOSI-ADI.3 with dx = 0.010, dtODE = 0.040 and dtPDE = 0.040:
+Mean absolute error: 0.4215
+Mean square error: 4.0605
+Relative error: 0.0885 (8.8461 %)
+
+Error for MOSI-ADI.3 with dx = 0.010, dtODE = 0.080 and dtPDE = 0.080:
+Mean absolute error: 0.6839
+Mean square error: 10.5358
+Relative error: 0.1425 (14.2493 %)
+
+Error for MOSI-ADI.3 with dx = 0.010, dtODE = 0.160 and dtPDE = 0.160:
+Mean absolute error: 1.0282
+Mean square error: 14.8000
+Relative error: 0.1689 (16.8885 %)
+
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+
+
+Error for FE with dx = 0.010, dtODE = 0.010 and dtPDE = 0.010:
+Mean absolute error: 0.2612
+Mean square error: 0.8164
+Relative error: 0.0397 (3.9667 %)
+
+Error for FE with dx = 0.010, dtODE = 0.020 and dtPDE = 0.020:
+Mean absolute error: 0.4184
+Mean square error: 1.7610
+Relative error: 0.0583 (5.8256 %)
+
+Error for FE with dx = 0.010, dtODE = 0.040 and dtPDE = 0.040:
+Mean absolute error: 0.7384
+Mean square error: 5.1733
+Relative error: 0.0998 (9.9849 %)
+
+Error for FE with dx = 0.010, dtODE = 0.080 and dtPDE = 0.080:
+Simulation diverged
+
+Error for FE with dx = 0.010, dtODE = 0.160 and dtPDE = 0.160:
+Simulation diverged
+
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+

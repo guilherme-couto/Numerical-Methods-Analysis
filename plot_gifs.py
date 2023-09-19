@@ -30,9 +30,9 @@ def create_gif(num_threads, dt_ODE, dt_PDE, method, cell_model, dx):
                 
             frames.append(frame_name)
 
-            plt.imshow(lines[i:i+discretization_size], cmap='plasma', vmin=0, vmax=100)
+            plt.imshow(lines[i:i+discretization_size], cmap='plasma', vmin=-85.0, vmax=50)
             plt.colorbar(label='V (mV)')
-            if method == 'ADI1' or method == 'FE':
+            if method == 'OS-ADI' or method == 'FE':
                 plt.title(f'{cell_model} {method} dtODE = {dt_ODE} dtPDE = {dt_PDE} t = {times[n]:.2f}')
             else:
                 plt.title(f'{cell_model} {method} dt = {dt_ODE} t = {times[n]:.2f}')
@@ -66,7 +66,7 @@ def main():
                 for method in methods:
                     for dt_ODE in dts_ODE:
                         dts_PDE = [dt_ODE]
-                        if method == 'ADI1' or method == 'FE':
+                        if method == 'OS-ADI' or method == 'FE':
                             i = 2
                             while dt_ODE * i <= max_dt_PDE:
                                 dts_PDE.append(dt_ODE * i)

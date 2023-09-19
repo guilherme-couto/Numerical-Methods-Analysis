@@ -9,10 +9,10 @@
 //##         Simulation parameters          ##
 //##                                        ##
 //############################################
-double L = 2;           // Length of each side (cm)
-double deltax = 0.04;   // Spatial step -> cm
-double deltay = 0.04;   // Spatial step -> cm
-double T = 320.0;       // Simulation time -> ms
+double L = 4.0;         // Length of each side (cm)
+double deltax = 0.005;   // Spatial step -> cm
+double deltay = 0.005;   // Spatial step -> cm
+double T = 500.0;       // Simulation time -> ms
 
 
 
@@ -21,17 +21,27 @@ double T = 320.0;       // Simulation time -> ms
 //##         Stimulation parameters         ##
 //##                                        ##
 //############################################
-double stimStrength = 100.0;         
+#ifdef AFHN
+double stimStrength = 100.0;  
+#endif  // AFHN
+#ifdef MV
+double stimStrength = 1.0;          // Stimulation strength -> uA/cm^2
+#endif  // MV
 
 double stim1Begin = 0.0;            // Stimulation start time -> ms
 double stim1Duration = 2.0;         // Stimulation duration -> ms
 double stim1xLimit = 0.2;           // Stimulation x limit -> cm
-double stim1yLimit = 2.0;           // Stimulation y limit -> cm ( = L)
+double stim1yLimit = 4.0;           // Stimulation y limit -> cm ( = L)
 
+#ifdef AFHN
 double stim2Begin = 120.0;          // Stimulation start time -> ms
+#endif  // AFHN
+#ifdef MV
+double stim2Begin = 330.0;            // Stimulation start time -> ms
+#endif  // MV
 double stim2Duration = 2.0;         // Stimulation duration -> ms
-double stim2xMax = 1.0;             // Stimulation x max -> cm
-double stim2yMax = 1.0;             // Stimulation y max -> cm
+double stim2xMax = 2.0;             // Stimulation x max -> cm
+double stim2yMax = 2.0;             // Stimulation y max -> cm
 double stim2xMin = 0.0;             // Stimulation x min -> cm
 double stim2yMin = 0.0;             // Stimulation y min -> cm
 
@@ -43,10 +53,10 @@ double stim2yMin = 0.0;             // Stimulation y min -> cm
 //##                                        ##
 //############################################
 double fibrosisFactor = 0.2;        // Fibrosis rate -> dimensionless
-double fibrosisMinX = 0.7;          // Fibrosis x min -> cm
-double fibrosisMaxX = 1.3;          // Fibrosis x max -> cm
-double fibrosisMinY = 0.7;          // Fibrosis y min -> cm
-double fibrosisMaxY = 1.3;          // Fibrosis y max -> cm
+double fibrosisMinX = 1.4;          // Fibrosis x min -> cm
+double fibrosisMaxX = 2.6;          // Fibrosis x max -> cm
+double fibrosisMinY = 1.4;          // Fibrosis y min -> cm
+double fibrosisMaxY = 2.6;          // Fibrosis y max -> cm
 
 
 
@@ -95,6 +105,9 @@ https://doi.org/10.1016/j.jtbi.2008.03.029
 /*----------------------------
 Model parameters
 ----------------------------*/
+double sigma = 0.8122;              // Diffusion coefficient -> cm²/s (Corresponds to 1.171 in the TT2 model) || (0.8122 in the MV model)
+double chi = 1400.0;                // Surface area to volume ratio -> cm^-1
+double Cm = 1.0;                    // Cell capacitance per unit surface area -> uF/cm²
 
 // EPI parameters
 #ifdef EPI

@@ -15,7 +15,7 @@ double reactionV(double v, double w)
     return (1.0 / (Cm * chi)) * ((-G * v * (1.0 - (v / vth)) * (1.0 - (v / vp))) + (-eta1 * v * w));
 }
 
-double reactionW(double v, double w)
+double rhsW(double v, double w)
 {
     return eta2 * ((v / vp) - (eta3 * w));
 }
@@ -100,7 +100,7 @@ double J_si(double u, double w, double s)
 // Right side of each variable
 double reactionU(double u, double v, double w, double s)
 {
-    return (J_fi(u, v) + J_so(u) + J_si(u, w, s));
+    return - (J_fi(u, v) + J_so(u) + J_si(u, w, s));
 }
 
 double rhsV(double u, double v)
@@ -538,32 +538,32 @@ double Itotal(double I_stim, double V, double m, double h, double j, double Na_i
     return I_stim + INa + IbNa + IK1 + Ito + IKr + IKs + ICaL + INaK + INaCa + IpCa + IpK + IbCa;
 }
 
-double dRprimedt(double Ca_SS, double R_prime)
+double rhsRprime(double Ca_SS, double R_prime)
 {
     return ((-k2(Ca_SS)) * Ca_SS * R_prime) + (k4 * (1.0 - R_prime));
 }
 
-double dCaidt(double Ca_i, double Ca_SR, double Ca_SS, double V, double Na_i)
+double rhsCai(double Ca_i, double Ca_SR, double Ca_SS, double V, double Na_i)
 {
     return Ca_ibufc(Ca_i) * (((((I_leak(Ca_SR, Ca_i) - I_up(Ca_i)) * V_SR) / V_C) + I_xfer(Ca_SS, Ca_i)) - ((((I_bCa(V, Ca_i) + I_pCa(V, Ca_i)) - (2.0 * I_NaCa(V, Na_i, Ca_i))) * Cm) / (2.0 * V_C * F)));
 }
 
-double dCaSRdt(double Ca_SR, double Ca_i, double Ca_SS, double R_prime)
+double rhsCaSR(double Ca_SR, double Ca_i, double Ca_SS, double R_prime)
 {
     return Ca_srbufsr(Ca_SR) * (I_up(Ca_i) - (I_rel(Ca_SR, Ca_SS, R_prime) + I_leak(Ca_SR, Ca_i)));
 }
 
-double dCaSSdt(double Ca_SS, double V, double d, double f, double f2, double fCass, double Ca_SR, double R_prime, double Ca_i)
+double rhsCaSS(double Ca_SS, double V, double d, double f, double f2, double fCass, double Ca_SR, double R_prime, double Ca_i)
 {
     return Ca_ssbufss(Ca_SS) * (((((-I_CaL(V, d, f, f2, fCass, Ca_SS)) * Cm) / (2.0 * V_SS * F)) + ((I_rel(Ca_SR, Ca_SS, R_prime) * V_SR) / V_SS)) - ((I_xfer(Ca_SS, Ca_i) * V_C) / V_SS));
 }
 
-double dNaidt(double V, double m, double h, double j, double Na_i, double Ca_i)
+double rhsNai(double V, double m, double h, double j, double Na_i, double Ca_i)
 {
     return ((-(I_Na(V, m, h, j, Na_i) + I_bNa(V, Na_i) + (3.0 * I_NaK(V, Na_i)) + (3.0 * I_NaCa(V, Na_i, Ca_i)))) / (V_C * F)) * Cm;
 }
 
-double dKidt(double I_stim, double V, double K_i, double r, double s, double X_r1, double X_r2, double X_s, double Na_i)
+double rhsKi(double I_stim, double V, double K_i, double r, double s, double X_r1, double X_r2, double X_s, double Na_i)
 {
     return ((-((I_stim + I_K1(V, K_i) + I_to(V, r, s, K_i) + I_Kr(V, X_r1, X_r2, K_i) + I_Ks(V, X_s, K_i, Na_i) + I_pK(V, K_i)) - (2.0 * I_NaK(V, Na_i)))) / (V_C * F)) * Cm;
 }

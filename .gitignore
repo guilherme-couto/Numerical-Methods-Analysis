@@ -2,6 +2,10 @@
 *.vscode
 *.txt
 
+# Excptions
+!infos*.txt
+!errors*.txt
+
 # Prerequisites
 *.d
 

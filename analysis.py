@@ -1,6 +1,6 @@
 from execution import *
 
-def read_file_matrix(filename):
+def read_file_matrix_to_vector(filename):
     f = open(filename, 'r')
     file_matrix = f.readlines()
 
@@ -8,22 +8,28 @@ def read_file_matrix(filename):
         line = file_matrix[i].split()
         file_matrix[i] = [float(x) for x in line]
 
-    return file_matrix
-
-def matrix_to_vector(matrix):
     vector = []
-    for i in range(len(matrix)):
-        for j in range(len(matrix[i])):
-            vector.append(matrix[i][j])
+    for i in range(len(file_matrix)):
+        for j in range(len(file_matrix[i])):
+            vector.append(file_matrix[i][j])
     return np.array(vector)
+    
 
 def main():
-
     for dx in dxs:
         for cell_model in cell_models:
             # Reference solution
-            reference_filename = f'./simulation-files/{dx}/{cell_model}/FE/last-1-0.005-0.005.txt'
-            reference = matrix_to_vector(read_file_matrix(reference_filename))
+            # Check if reference file exists
+            reference_filename = f'./simulation-files/{dx}/{cell_model}/{reference_method}/last-{numbers_threads[0]}-{reference_dt}-{reference_dt}.txt'
+            
+            if not os.path.exists(reference_filename):
+                print(f'Reference file {reference_filename} does not exist. Creating it...')
+                execution_line = f'./main {numbers_threads[0]} {reference_dt} {reference_dt} {reference_method} 1 0 0'
+                print(f'Executing {execution_line}')
+                os.system(execution_line)
+                print(f'Simultation {execution_line} finished!\n')
+            
+            reference = read_file_matrix_to_vector(reference_filename)
 
             # Open file to write errors of each method configuration
             if not os.path.exists(f'./analysis/{dx}/{cell_model}'):
@@ -34,19 +40,19 @@ def main():
                 for method in methods:
                     for dt_ODE in dts_ODE:
                         dts_PDE = [dt_ODE]
-                        if method == 'ADI1' or method == 'FE':
+                        if method == 'OS-ADI' or method == 'FE':
                             i = 2
                             while dt_ODE * i <= max_dt_PDE:
                                 dts_PDE.append(dt_ODE * i)
                                 i += 1
                         for dt_PDE in dts_PDE:
                             filename = f'./simulation-files/{dx}/{cell_model}/{method}/last-{number_threads}-{dt_ODE:.3f}-{dt_PDE:.3f}.txt'
-                            case = matrix_to_vector(read_file_matrix(filename))
+                            case = read_file_matrix_to_vector(filename)
 
                             f_errors.write(f'\nError for {method} with dx = {dx}, dtODE = {dt_ODE:.3f} and dtPDE = {dt_PDE:.3f}:\n')
 
-                            # If case has a negative or NaN value, then the simulation diverged
-                            if np.any(case < 0) or np.any(np.isnan(case)):
+                            # If the simulation diverged
+                            if np.any(np.isnan(case)):
                                 f_errors.write('Simulation diverged\n')
 
                             else:
@@ -57,6 +63,9 @@ def main():
                                 f_errors.write(f'Mean absolute error: {mae:.4f}\n')
                                 f_errors.write(f'Mean square error: {mse:.4f}\n')
                                 f_errors.write(f'Relative error: {relative_error:.4f} ({100*relative_error:.4f} %)\n')
+                                
+                    f_errors.write('\n----------------------------------------------------------------------------\n')
+                    f_errors.write('----------------------------------------------------------------------------\n\n')
 
 if __name__ == '__main__':
     main()

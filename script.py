@@ -12,7 +12,7 @@ if len(sys.argv) == 1:
                 for method in methods:
                     for dt_ODE in dts_ODE:
                         dts_PDE = [dt_ODE]
-                        if method == 'ADI1' or method == 'FE':
+                        if method == 'OS-ADI' or method == 'FE':
                             i = 2
                             while dt_ODE * i <= max_dt_PDE:
                                 dts_PDE.append(dt_ODE * i)
@@ -37,7 +37,7 @@ elif len(sys.argv) == 2:
                         for method in methods:
                             for dt_ODE in dts_ODE:
                                 dts_PDE = [dt_ODE]
-                                if method == 'ADI1' or method == 'FE':
+                                if method == 'OS-ADI' or method == 'FE':
                                     i = 2
                                     while dt_ODE * i <= max_dt_PDE:
                                         dts_PDE.append(dt_ODE * i)
