@@ -24,6 +24,8 @@ def main():
             
             if not os.path.exists(reference_filename):
                 print(f'Reference file {reference_filename} does not exist. Creating it...')
+                # Compile
+                os.system(f'gcc -o main main.c -O3 -lm -lpthread -fopenmp')
                 execution_line = f'./main {numbers_threads[0]} {reference_dt} {reference_dt} {reference_method} 1 0 0'
                 print(f'Executing {execution_line}')
                 os.system(execution_line)

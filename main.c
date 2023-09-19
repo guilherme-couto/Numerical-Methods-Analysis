@@ -1,30 +1,5 @@
 #include "./include/includes.h"
 
-void resetSimulationParameters()
-{
-    // For stimulation
-    Istim = 0.0;
-
-    // For time step
-    timeStepCounter = 0;
-    timeStep = 0.0;
-
-    // For execution time
-    startTotal = 0.0;
-    finishTotal = 0.0;
-    elapsedTotal = 0.0;
-    startODE = 0.0;
-    finishODE = 0.0;
-    elapsedODE = 0.0;
-    startPDE = 0.0;
-    finishPDE = 0.0;
-    elapsedPDE = 0.0;
-
-    // For velocity
-    S1VelocityTag = true;
-    S1Velocity = 0.0;
-}
-
 /*-------------
 Main function
 --------------*/
@@ -82,8 +57,6 @@ int main(int argc, char *argv[])
     if (onlySpeed == false)
     {
         runMethod(options, method, deltatODE, deltatPDE, numberThreads);
-        resetSimulationParameters();
-        runMethodOnlyTotalTimeAnalysis(options, method, deltatODE, deltatPDE, numberThreads);
     }
     else if (onlySpeed == true)
     {
@@ -92,7 +65,7 @@ int main(int argc, char *argv[])
         options[3] = false;
         runMethod(options, method, deltatODE, deltatPDE, numberThreads);
         resetSimulationParameters();
-        //runMethodOnlyTotalTimeAnalysis(options, method, deltatODE, deltatPDE, numberThreads);
+        runMethodOnlyTotalTimeAnalysis(options, method, deltatODE, deltatPDE, numberThreads);
     }
     
 

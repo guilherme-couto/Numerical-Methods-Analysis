@@ -9,10 +9,10 @@
 //##         Simulation parameters          ##
 //##                                        ##
 //############################################
-double L = 4.0;         // Length of each side (cm)
-double deltax = 0.005;   // Spatial step -> cm
-double deltay = 0.005;   // Spatial step -> cm
-double T = 500.0;       // Simulation time -> ms
+double L = 2.0;         // Length of each side (cm)
+double deltax = 0.002;   // Spatial step -> cm
+double deltay = 0.002;   // Spatial step -> cm
+double T = 320.0;       // Simulation time -> ms
 
 
 

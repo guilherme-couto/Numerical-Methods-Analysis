@@ -5,18 +5,23 @@ import math
 
 # Simulation parameters (parameters.c)
 # L = 2 cm
-# T = 320 ms
+# T = 160 ms
 
-# Parameters
-dxs = ['0.010', '0.020', '0.025']
+# Parameters (old)
+#dxs = ['0.010', '0.020', '0.025']
 #dts_second = ['0.08000', '0.16000', '0.20000'] # A = 8 (dt = A dx)
 #dts_first = ['0.03200', '0.12800', '0.20000'] # A = 320 (dt = A dx²)
-dts_second = ['0.010', '0.020', '0.025']
-dts_first = ['0.00010', '0.00040', '0.000625'] # A = 1 (dt = A dx²)
+#dts_second = ['0.010', '0.020', '0.025']
+#dts_first = ['0.00010', '0.00040', '0.000625'] # A = 1 (dt = A dx²)
+
 cell_models = ['AFHN']#, 'AFHN-Fibro']
 numbers_threads = [6]
-methods_first = ['ADI1', 'SSI-ADI', 'ADI1.5.3']
-methods_second = ['ADI1', 'SSI-ADI', 'ADI1.5.3']
+methods_first = ['OS-ADI', 'SSI-ADI', 'MOSI-ADI.3']
+methods_second = ['OS-ADI', 'SSI-ADI', 'MOSI-ADI.3']
+
+dxs = ['0.020', '0.025', '0.040', '0.050']
+dts_first = ['0.00040', '0.000625', '0.00160', '0.00250']   # A = 1 (dt = A dx²)
+dts_second = ['0.020', '0.025', '0.040', '0.050']           # A = 1 (dt = A dx)
 
 print('For second order methods:')
 for i in range(len(dxs)):
@@ -26,7 +31,7 @@ for i in range(len(dxs)):
     print(f'dx = {dxs[i]}, dt = {dts_first[i]}')
 
 # Run convergence cases
-ref = 0.00125
+ref = 0.002
 spatial_ref = 0.2
 for cell_model in cell_models:
 	for num_threads in numbers_threads:
@@ -46,37 +51,44 @@ for cell_model in cell_models:
 				print(f'Simultation {execution_line} finished!\n')
 
 # Run reference case
-dx_ref = 0.00125
+dx_ref = 0.002
 #dt_ref_second = 0.01
 #dt_ref_first = 0.0005
-dt_ref_second = 0.00125
-dt_ref_first = 0.0000015625
+dt_ref_second = 0.002
+dt_ref_first = 0.000004
 ref_methods = ['SSI-ADI']
 
-print(f'Running reference case {(float(dxs[0])/dx_ref):.2f} times smaller...')
+print(f'Reference case {(float(dxs[0])/dx_ref):.2f} times smaller')
 print(f'dx_ref = {dx_ref}, dt_ref_second = {dt_ref_second}')
 print(f'dx_ref = {dx_ref}, dt_ref_first = {dt_ref_first}')
 
 spatial_rate = int(spatial_ref / float(dx_ref))
 rate = int(dx_ref / ref)
+
+reference_path_second = f'./simulation-files/{(dx_ref):.3f}/{cell_models[0]}/{ref_methods[0]}/last-{numbers_threads[-1]}-{(dt_ref_second):.5f}.txt'
+reference_path_first = f'./simulation-files/{(dx_ref):.3f}/{cell_models[0]}/{ref_methods[0]}/last-{numbers_threads[-1]}-{(dt_ref_first):.5f}.txt'
+
 for ref_method in ref_methods:
+
     # For second order
-    execution_line = f'./main {numbers_threads[-1]} {dx_ref} {dt_ref_second} {ref_method} {rate} {spatial_rate}'
-    print(f'Executing Reference: {execution_line}')
-    os.system(f'{execution_line}')
-    print(f'Simultation Reference: {execution_line} finished!\n')
+    if not os.path.exists(reference_path_second):
+        execution_line = f'./main {numbers_threads[-1]} {dx_ref} {dt_ref_second} {ref_method} {rate} {spatial_rate}'
+        print(f'Executing Reference: {execution_line}')
+        os.system(f'{execution_line}')
+        print(f'Simultation Reference: {execution_line} finished!\n')
 
     # For first order
-    execution_line = f'./main {numbers_threads[-1]} {dx_ref} {dt_ref_first} {ref_method} {rate} {spatial_rate}'
-    print(f'Executing Reference: {execution_line}')
-    os.system(f'{execution_line}')
-    print(f'Simultation Reference: {execution_line} finished!\n')
+    if not os.path.exists(reference_path_first):
+        execution_line = f'./main {numbers_threads[-1]} {dx_ref} {dt_ref_first} {ref_method} {rate} {spatial_rate}'
+        print(f'Executing Reference: {execution_line}')
+        os.system(f'{execution_line}')
+        print(f'Simultation Reference: {execution_line} finished!\n')
       
 
 # Get reference solution
-reference_path_second = f'./simulation-files/{(dx_ref):.3f}/{cell_models[0]}/{ref_methods[0]}/last-{numbers_threads[-1]}-{(dt_ref_second):.5f}.txt'
+
 reference_second = []
-reference_path_first = f'./simulation-files/{(dx_ref):.3f}/{cell_models[0]}/{ref_methods[0]}/last-{numbers_threads[-1]}-{(dt_ref_first):.5f}.txt'
+
 reference_first = []
 with open(reference_path_second, 'r') as file:
     for line in file:

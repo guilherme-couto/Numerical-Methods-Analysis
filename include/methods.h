@@ -12,8 +12,8 @@ double timeStep = 0.0;
 
 // For execution time
 double startTotal = 0.0, finishTotal = 0.0, elapsedTotal = 0.0;
-double startODE = 0.0, finishODE = 0.0, elapsedODE = 0.0;
-double startPDE = 0.0, finishPDE = 0.0, elapsedPDE = 0.0;
+double start1stPart = 0.0, finish1stPart = 0.0, elapsed1stPart = 0.0;
+double start2ndPart = 0.0, finish2ndPart = 0.0, elapsed2ndPart = 0.0;
 double lastCheckpointTime = 0.0;
 
 // For velocity
@@ -24,6 +24,31 @@ double S1Velocity = 0.0;
 bool VWTag = false;
 double measureVWFrom = 117.0, measureVWTo = 132.0;
 double lowerVWBound = 999.0, upperVWBound = 0.0;
+
+void resetSimulationParameters()
+{
+    // For stimulation
+    Istim = 0.0;
+
+    // For time step
+    timeStepCounter = 0;
+    timeStep = 0.0;
+
+    // For execution time
+    startTotal = 0.0;
+    finishTotal = 0.0;
+    elapsedTotal = 0.0;
+    start1stPart = 0.0;
+    finish1stPart = 0.0;
+    elapsed1stPart = 0.0;
+    start2ndPart = 0.0;
+    finish2ndPart = 0.0;
+    elapsed2ndPart = 0.0;
+
+    // For velocity
+    S1VelocityTag = true;
+    S1Velocity = 0.0;
+}
 
 
 //############################################
@@ -166,7 +191,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
         fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
         discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
         c_, d_, Vtilde, Wtilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, saveDataToGif, \
-        Rv, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
+        Rv, rightside, solution, start1stPart, finish1stPart, elapsed1stPart, start2ndPart, finish2ndPart, elapsed2ndPart)
         {
             while (timeStepCounter < M)
             {
@@ -176,7 +201,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Start measuring ODE execution time
                 #pragma omp master
                 {
-                    startODE = omp_get_wtime();
+                    start1stPart = omp_get_wtime();
                 }
 
                 // Resolve ODEs
@@ -207,9 +232,9 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring ODE execution time and start measuring PDE execution time
                 #pragma omp master
                 {
-                    finishODE = omp_get_wtime();
-                    elapsedODE += finishODE - startODE;
-                    startPDE = omp_get_wtime();
+                    finish1stPart = omp_get_wtime();
+                    elapsed1stPart += finish1stPart - start1stPart;
+                    start2ndPart = omp_get_wtime();
                 }
 
                 // Resolve PDEs (Diffusion)
@@ -254,8 +279,8 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring PDE execution time
                 #pragma omp master
                 {
-                    finishPDE = omp_get_wtime();
-                    elapsedPDE += finishPDE - startPDE;
+                    finish2ndPart = omp_get_wtime();
+                    elapsed2ndPart += finish2ndPart - start2ndPart;
                 }
 
                 // Save frames
@@ -317,7 +342,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
         fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
         discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
         c_, d_, Vtilde, Wtilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, saveDataToGif, \
-        Rv, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
+        Rv, rightside, solution, start1stPart, finish1stPart, elapsed1stPart, start2ndPart, finish2ndPart, elapsed2ndPart)
         {
             while (timeStepCounter < M)
             {
@@ -327,7 +352,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Start measuring ODE execution time
                 #pragma omp master
                 {
-                    startODE = omp_get_wtime();
+                    start1stPart = omp_get_wtime();
                 }
 
                 // Resolve ODEs
@@ -364,9 +389,9 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring ODE execution time and start measuring PDE execution time
                 #pragma omp master
                 {
-                    finishODE = omp_get_wtime();
-                    elapsedODE += finishODE - startODE;
-                    startPDE = omp_get_wtime();
+                    finish1stPart = omp_get_wtime();
+                    elapsed1stPart += finish1stPart - start1stPart;
+                    start2ndPart = omp_get_wtime();
                 }
 
                 // Resolve PDEs (Diffusion)
@@ -433,8 +458,8 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring PDE execution time
                 #pragma omp master
                 {
-                    finishPDE = omp_get_wtime();
-                    elapsedPDE += finishPDE - startPDE;
+                    finish2ndPart = omp_get_wtime();
+                    elapsed2ndPart += finish2ndPart - start2ndPart;
                 }
 
                 // Save frames
@@ -496,7 +521,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
         fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
         discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
         c_, d_, Vtilde, Wtilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, saveDataToGif, \
-        Rv, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
+        Rv, rightside, solution, start1stPart, finish1stPart, elapsed1stPart, start2ndPart, finish2ndPart, elapsed2ndPart)
         {
             while (timeStepCounter < M)
             {
@@ -506,7 +531,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Start measuring ODE execution time
                 #pragma omp master
                 {
-                    startODE = omp_get_wtime();
+                    start1stPart = omp_get_wtime();
                 }
 
                 // Resolve ODEs
@@ -539,9 +564,9 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring ODE execution time and start measuring PDE execution time
                 #pragma omp master
                 {
-                    finishODE = omp_get_wtime();
-                    elapsedODE += finishODE - startODE;
-                    startPDE = omp_get_wtime();
+                    finish1stPart = omp_get_wtime();
+                    elapsed1stPart += finish1stPart - start1stPart;
+                    start2ndPart = omp_get_wtime();
                 }
 
                 // Resolve PDEs (Diffusion)
@@ -610,8 +635,8 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring PDE execution time
                 #pragma omp master
                 {
-                    finishPDE = omp_get_wtime();
-                    elapsedPDE += finishPDE - startPDE;
+                    finish2ndPart = omp_get_wtime();
+                    elapsed2ndPart += finish2ndPart - start2ndPart;
                 }
 
                 // Save frames
@@ -673,7 +698,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
         fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
         discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
         c_, d_, Vtilde, Wtilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, saveDataToGif, \
-        Rv, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
+        Rv, rightside, solution, start1stPart, finish1stPart, elapsed1stPart, start2ndPart, finish2ndPart, elapsed2ndPart)
         {
             while (timeStepCounter < M)
             {
@@ -683,7 +708,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Start measuring ODE execution time
                 #pragma omp master
                 {
-                    startODE = omp_get_wtime();
+                    start1stPart = omp_get_wtime();
                 }
 
                 // Resolve ODEs
@@ -716,9 +741,9 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring ODE execution time and start measuring PDE execution time
                 #pragma omp master
                 {
-                    finishODE = omp_get_wtime();
-                    elapsedODE += finishODE - startODE;
-                    startPDE = omp_get_wtime();
+                    finish1stPart = omp_get_wtime();
+                    elapsed1stPart += finish1stPart - start1stPart;
+                    start2ndPart = omp_get_wtime();
                 }
 
                 // Resolve PDEs (Diffusion)
@@ -786,8 +811,8 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring PDE execution time
                 #pragma omp master
                 {
-                    finishPDE = omp_get_wtime();
-                    elapsedPDE += finishPDE - startPDE;
+                    finish2ndPart = omp_get_wtime();
+                    elapsed2ndPart += finish2ndPart - start2ndPart;
                 }
 
                 // Save frames
@@ -849,7 +874,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
         fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
         discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
         c_, d_, Vtilde, Wtilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, saveDataToGif, \
-        Rv, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
+        Rv, rightside, solution, start1stPart, finish1stPart, elapsed1stPart, start2ndPart, finish2ndPart, elapsed2ndPart)
         {
             while (timeStepCounter < M)
             {
@@ -859,7 +884,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Start measuring ODE execution time
                 #pragma omp master
                 {
-                    startODE = omp_get_wtime();
+                    start1stPart = omp_get_wtime();
                 }
 
                 // Resolve ODEs
@@ -896,9 +921,9 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring ODE execution time and start measuring PDE execution time
                 #pragma omp master
                 {
-                    finishODE = omp_get_wtime();
-                    elapsedODE += finishODE - startODE;
-                    startPDE = omp_get_wtime();
+                    finish1stPart = omp_get_wtime();
+                    elapsed1stPart += finish1stPart - start1stPart;
+                    start2ndPart = omp_get_wtime();
                 }
 
                 // Resolve PDEs (Diffusion)
@@ -965,8 +990,8 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring PDE execution time
                 #pragma omp master
                 {
-                    finishPDE = omp_get_wtime();
-                    elapsedPDE += finishPDE - startPDE;
+                    finish2ndPart = omp_get_wtime();
+                    elapsed2ndPart += finish2ndPart - start2ndPart;
                 }
 
                 // Save frames
@@ -1029,7 +1054,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
         fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
         discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
         c_, d_, Vtilde, Wtilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, saveDataToGif, \
-        Rv, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
+        Rv, rightside, solution, start1stPart, finish1stPart, elapsed1stPart, start2ndPart, finish2ndPart, elapsed2ndPart)
         {
             while (timeStepCounter < M)
             {
@@ -1039,7 +1064,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Start measuring ODE execution time
                 #pragma omp master
                 {
-                    startODE = omp_get_wtime();
+                    start1stPart = omp_get_wtime();
                 }
 
                 // Resolve ODEs
@@ -1068,9 +1093,9 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring ODE execution time and start measuring PDE execution time
                 #pragma omp master
                 {
-                    finishODE = omp_get_wtime();
-                    elapsedODE += finishODE - startODE;
-                    startPDE = omp_get_wtime();
+                    finish1stPart = omp_get_wtime();
+                    elapsed1stPart += finish1stPart - start1stPart;
+                    start2ndPart = omp_get_wtime();
                 }
 
                 // Resolve PDEs (Diffusion)
@@ -1087,8 +1112,8 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring PDE execution time
                 #pragma omp master
                 {
-                    finishPDE = omp_get_wtime();
-                    elapsedPDE += finishPDE - startPDE;
+                    finish2ndPart = omp_get_wtime();
+                    elapsed2ndPart += finish2ndPart - start2ndPart;
                 }
 
                 // Save frames
@@ -1143,8 +1168,9 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
         fprintf(fpInfos, "S1 velocity: %lf m/s\n", S1Velocity);
         fprintf(fpInfos, "S2 begin: %.1lf ms\n", stim2Begin);
         fprintf(fpInfos, "PDE/ODE ratio: %d\n", PdeOdeRatio);
-        fprintf(fpInfos, "ODE execution time: %lf seconds\n", elapsedODE);
-        fprintf(fpInfos, "PDE execution time: %lf seconds\n", elapsedPDE);
+        fprintf(fpInfos, "1st parte execution time: %lf seconds\n", elapsed1stPart);
+        fprintf(fpInfos, "2nd part execution time: %lf seconds\n", elapsed2ndPart);
+        fprintf(fpInfos, "Total execution time with file writing: %lf seconds\n", elapsedTotal);
         if (haveFibrosis)
         {
             fprintf(fpInfos, "Fibrosis factor: %.2lf\n", fibrosisFactor);
@@ -2969,7 +2995,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
         fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
         discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
         c_, d_, Utilde, Vtilde, Wtilde, Stilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, saveDataToGif, \
-        Ru, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
+        Ru, rightside, solution, start1stPart, finish1stPart, elapsed1stPart, start2ndPart, finish2ndPart, elapsed2ndPart)
         {
             while (timeStepCounter < M)
             {
@@ -2979,7 +3005,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Start measuring ODE execution time
                 #pragma omp master
                 {
-                    startODE = omp_get_wtime();
+                    start1stPart = omp_get_wtime();
                 }
 
                 // Resolve ODEs
@@ -2998,12 +3024,17 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                             actualV = V[i][j];
                             actualW = W[i][j];
                             actualS = S[i][j];
+
+                            // Right hand side of the other variables
+                            Rv = deltatODE * rhsV(actualU, actualV);
+                            Rw = deltatODE * rhsW(actualU, actualW);
+                            Rs = deltatODE * rhsS(actualU, actualS);
                             
                             // Update variables without diffusion
                             U[i][j] = actualU + deltatODE * (reactionU(actualU, actualV, actualW, actualS) + Istim);
-                            V[i][j] = actualV + deltatODE * rhsV(actualU, actualV);
-                            W[i][j] = actualW + deltatODE * rhsW(actualU, actualW);
-                            S[i][j] = actualS + deltatODE * rhsS(actualU, actualS);
+                            V[i][j] = actualV + Rv;
+                            W[i][j] = actualW + Rw;
+                            S[i][j] = actualS + Rs;
 
                             // Update right side of Thomas algorithm
                             rightside[j][i] = U[i][j];
@@ -3014,9 +3045,9 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring ODE execution time and start measuring PDE execution time
                 #pragma omp master
                 {
-                    finishODE = omp_get_wtime();
-                    elapsedODE += finishODE - startODE;
-                    startPDE = omp_get_wtime();
+                    finish1stPart = omp_get_wtime();
+                    elapsed1stPart += finish1stPart - start1stPart;
+                    start2ndPart = omp_get_wtime();
                 }
 
                 // Resolve PDEs (Diffusion)
@@ -3061,8 +3092,8 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring PDE execution time
                 #pragma omp master
                 {
-                    finishPDE = omp_get_wtime();
-                    elapsedPDE += finishPDE - startPDE;
+                    finish2ndPart = omp_get_wtime();
+                    elapsed2ndPart += finish2ndPart - start2ndPart;
                 }
 
                 // Save frames
@@ -3124,7 +3155,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
         fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
         discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
         c_, d_, Utilde, Vtilde, Wtilde, Stilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, saveDataToGif, \
-        Ru, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
+        Ru, rightside, solution, start1stPart, finish1stPart, elapsed1stPart, start2ndPart, finish2ndPart, elapsed2ndPart)
         {
             while (timeStepCounter < M)
             {
@@ -3134,7 +3165,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Start measuring ODE execution time
                 #pragma omp master
                 {
-                    startODE = omp_get_wtime();
+                    start1stPart = omp_get_wtime();
                 }
 
                 // Resolve ODEs
@@ -3178,9 +3209,9 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring ODE execution time and start measuring PDE execution time
                 #pragma omp master
                 {
-                    finishODE = omp_get_wtime();
-                    elapsedODE += finishODE - startODE;
-                    startPDE = omp_get_wtime();
+                    finish1stPart = omp_get_wtime();
+                    elapsed1stPart += finish1stPart - start1stPart;
+                    start2ndPart = omp_get_wtime();
                 }
 
                 // Resolve PDEs (Diffusion)
@@ -3247,8 +3278,8 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring PDE execution time
                 #pragma omp master
                 {
-                    finishPDE = omp_get_wtime();
-                    elapsedPDE += finishPDE - startPDE;
+                    finish2ndPart = omp_get_wtime();
+                    elapsed2ndPart += finish2ndPart - start2ndPart;
                 }
 
                 // Save frames
@@ -3310,7 +3341,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
         fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
         discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
         c_, d_, Utilde, Vtilde, Wtilde, Stilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, saveDataToGif, \
-        Ru, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
+        Ru, rightside, solution, start1stPart, finish1stPart, elapsed1stPart, start2ndPart, finish2ndPart, elapsed2ndPart)
         {
             while (timeStepCounter < M)
             {
@@ -3320,7 +3351,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Start measuring ODE execution time
                 #pragma omp master
                 {
-                    startODE = omp_get_wtime();
+                    start1stPart = omp_get_wtime();
                 }
 
                 // Resolve ODEs
@@ -3341,14 +3372,20 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                         // Update U with diffusion
                         Utilde[i][j] = actualU + ((0.5 * phi) * (iDiffusion2nd(i, j, N, U, discFibxMax, discFibxMin, discFibyMax, discFibyMin) + jDiffusion2nd(i, j, N, U, discFibxMax, discFibxMin, discFibyMax, discFibyMin))) + (0.5 * deltatODE * (reactionU(actualU, actualV, actualW, actualS) + Istim));
 
-                        // Update U reaction term
                         actualU = Utilde[i][j];
+
+                        // Right hand side of the other variables
+                        Rv = deltatODE * rhsV(actualU, actualV);
+                        Rw = deltatODE * rhsW(actualU, actualW);
+                        Rs = deltatODE * rhsS(actualU, actualS);
+
+                        // Update U reaction term
                         Ru[i][j] = deltatODE * (reactionU(actualU, actualV, actualW, actualS) + Istim);
 
-                        // Update the other variables explicitly
-                        V[i][j] = actualV + (deltatODE * rhsV(actualU, actualV));
-                        W[i][j] = actualW + (deltatODE * rhsW(actualU, actualW));
-                        S[i][j] = actualS + (deltatODE * rhsS(actualU, actualS));
+                        // Update the other variables explicitly (parallelizable)
+                        V[i][j] = actualV + Rv;
+                        W[i][j] = actualW + Rw;
+                        S[i][j] = actualS + Rs;
                     }
                 }
                 
@@ -3356,9 +3393,9 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring ODE execution time and start measuring PDE execution time
                 #pragma omp master
                 {
-                    finishODE = omp_get_wtime();
-                    elapsedODE += finishODE - startODE;
-                    startPDE = omp_get_wtime();
+                    finish1stPart = omp_get_wtime();
+                    elapsed1stPart += finish1stPart - start1stPart;
+                    start2ndPart = omp_get_wtime();
                 }
 
                 // Resolve PDEs (Diffusion)
@@ -3427,8 +3464,8 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring PDE execution time
                 #pragma omp master
                 {
-                    finishPDE = omp_get_wtime();
-                    elapsedPDE += finishPDE - startPDE;
+                    finish2ndPart = omp_get_wtime();
+                    elapsed2ndPart += finish2ndPart - start2ndPart;
                 }
 
                 // Save frames
@@ -3490,7 +3527,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
         fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
         discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
         c_, d_, Utilde, Vtilde, Wtilde, Stilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, saveDataToGif, \
-        Ru, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
+        Ru, rightside, solution, start1stPart, finish1stPart, elapsed1stPart, start2ndPart, finish2ndPart, elapsed2ndPart)
         {
             while (timeStepCounter < M)
             {
@@ -3500,7 +3537,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Start measuring ODE execution time
                 #pragma omp master
                 {
-                    startODE = omp_get_wtime();
+                    start1stPart = omp_get_wtime();
                 }
 
                 // Resolve ODEs
@@ -3521,13 +3558,18 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                         // Update U with diffusion
                         Utilde[i][j] = actualU + ((0.5 * phi) * (iDiffusion2nd(i, j, N, U, discFibxMax, discFibxMin, discFibyMax, discFibyMin) + jDiffusion2nd(i, j, N, U, discFibxMax, discFibxMin, discFibyMax, discFibyMin))) + (0.5 * deltatODE * (reactionU(actualU, actualV, actualW, actualS) + Istim));
 
+                        // Right hand side of the other variables
+                        Rv = deltatODE * rhsV(actualU, actualV);
+                        Rw = deltatODE * rhsW(actualU, actualW);
+                        Rs = deltatODE * rhsS(actualU, actualS);
+
                         // Update U reaction term
                         Ru[i][j] = deltatODE * (reactionU(Utilde[i][j], actualV, actualW, actualS) + Istim);
 
                         // Update the other variables explicitly
-                        V[i][j] = actualV + (deltatODE * rhsV(actualU, actualV));
-                        W[i][j] = actualW + (deltatODE * rhsW(actualU, actualW));
-                        S[i][j] = actualS + (deltatODE * rhsS(actualU, actualS));
+                        V[i][j] = actualV + Rv;
+                        W[i][j] = actualW + Rw;
+                        S[i][j] = actualS + Rs;
                     }
                 }
                 
@@ -3535,9 +3577,9 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring ODE execution time and start measuring PDE execution time
                 #pragma omp master
                 {
-                    finishODE = omp_get_wtime();
-                    elapsedODE += finishODE - startODE;
-                    startPDE = omp_get_wtime();
+                    finish1stPart = omp_get_wtime();
+                    elapsed1stPart += finish1stPart - start1stPart;
+                    start2ndPart = omp_get_wtime();
                 }
 
                 // Resolve PDEs (Diffusion)
@@ -3605,8 +3647,8 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring PDE execution time
                 #pragma omp master
                 {
-                    finishPDE = omp_get_wtime();
-                    elapsedPDE += finishPDE - startPDE;
+                    finish2ndPart = omp_get_wtime();
+                    elapsed2ndPart += finish2ndPart - start2ndPart;
                 }
 
                 // Save frames
@@ -3668,7 +3710,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
         fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
         discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
         c_, d_, Utilde, Vtilde, Wtilde, Stilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, saveDataToGif, \
-        Ru, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
+        Ru, rightside, solution, start1stPart, finish1stPart, elapsed1stPart, start2ndPart, finish2ndPart, elapsed2ndPart)
         {
             while (timeStepCounter < M)
             {
@@ -3678,7 +3720,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Start measuring ODE execution time
                 #pragma omp master
                 {
-                    startODE = omp_get_wtime();
+                    start1stPart = omp_get_wtime();
                 }
 
                 // Resolve ODEs                
@@ -3723,9 +3765,9 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring ODE execution time and start measuring PDE execution time
                 #pragma omp master
                 {
-                    finishODE = omp_get_wtime();
-                    elapsedODE += finishODE - startODE;
-                    startPDE = omp_get_wtime();
+                    finish1stPart = omp_get_wtime();
+                    elapsed1stPart += finish1stPart - start1stPart;
+                    start2ndPart = omp_get_wtime();
                 }
 
                 // Resolve PDEs (Diffusion)
@@ -3792,8 +3834,8 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring PDE execution time
                 #pragma omp master
                 {
-                    finishPDE = omp_get_wtime();
-                    elapsedPDE += finishPDE - startPDE;
+                    finish2ndPart = omp_get_wtime();
+                    elapsed2ndPart += finish2ndPart - start2ndPart;
                 }
 
                 // Save frames
@@ -3855,7 +3897,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
         fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
         discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
         c_, d_, Utilde, Vtilde, Wtilde, Stilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, saveDataToGif, \
-        Ru, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
+        Ru, rightside, solution, start1stPart, finish1stPart, elapsed1stPart, start2ndPart, finish2ndPart, elapsed2ndPart)
         {
             while (timeStepCounter < M)
             {
@@ -3865,7 +3907,7 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Start measuring ODE execution time
                 #pragma omp master
                 {
-                    startODE = omp_get_wtime();
+                    start1stPart = omp_get_wtime();
                 }
 
                 // Resolve ODEs
@@ -3899,9 +3941,9 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring ODE execution time and start measuring PDE execution time
                 #pragma omp master
                 {
-                    finishODE = omp_get_wtime();
-                    elapsedODE += finishODE - startODE;
-                    startPDE = omp_get_wtime();
+                    finish1stPart = omp_get_wtime();
+                    elapsed1stPart += finish1stPart - start1stPart;
+                    start2ndPart = omp_get_wtime();
                 }
 
                 // Resolve PDEs (Diffusion)
@@ -3918,8 +3960,8 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
                 // Finish measuring PDE execution time
                 #pragma omp master
                 {
-                    finishPDE = omp_get_wtime();
-                    elapsedPDE += finishPDE - startPDE;
+                    finish2ndPart = omp_get_wtime();
+                    elapsed2ndPart += finish2ndPart - start2ndPart;
                 }
 
                 // Save frames
@@ -3974,8 +4016,9 @@ void runMethod(bool options[], char *method, float deltatODE, float deltatPDE, i
         fprintf(fpInfos, "S1 velocity: %lf m/s\n", S1Velocity);
         fprintf(fpInfos, "S2 begin: %.1lf ms\n", stim2Begin);
         fprintf(fpInfos, "PDE/ODE ratio: %d\n", PdeOdeRatio);
-        fprintf(fpInfos, "ODE execution time: %lf seconds\n", elapsedODE);
-        fprintf(fpInfos, "PDE execution time: %lf seconds\n", elapsedPDE);
+        fprintf(fpInfos, "1st part execution time: %lf seconds\n", elapsed1stPart);
+        fprintf(fpInfos, "2nd part execution time: %lf seconds\n", elapsed2ndPart);
+        fprintf(fpInfos, "Total execution time with file writing: %lf seconds\n", elapsedTotal);
         if (haveFibrosis)
         {
             fprintf(fpInfos, "Fibrosis factor: %.2lf\n", fibrosisFactor);
@@ -4218,7 +4261,7 @@ void runMethodOnlyTotalTimeAnalysis(bool options[], char *method, float deltatOD
         fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
         discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
         c_, d_, Utilde, Vtilde, Wtilde, Stilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, saveDataToGif, \
-        Ru, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
+        Ru, rightside, solution, start1stPart, finish1stPart, elapsed1stPart, start2ndPart, finish2ndPart, elapsed2ndPart)
         {
             while (timeStepCounter < M)
             {
@@ -4241,12 +4284,17 @@ void runMethodOnlyTotalTimeAnalysis(bool options[], char *method, float deltatOD
                             actualV = V[i][j];
                             actualW = W[i][j];
                             actualS = S[i][j];
+
+                            // Right hand side of the other variables
+                            Rv = deltatODE * rhsV(actualU, actualV);
+                            Rw = deltatODE * rhsW(actualU, actualW);
+                            Rs = deltatODE * rhsS(actualU, actualS);
                             
                             // Update variables without diffusion
                             U[i][j] = actualU + deltatODE * (reactionU(actualU, actualV, actualW, actualS) + Istim);
-                            V[i][j] = actualV + deltatODE * rhsV(actualU, actualV);
-                            W[i][j] = actualW + deltatODE * rhsW(actualU, actualW);
-                            S[i][j] = actualS + deltatODE * rhsS(actualU, actualS);
+                            V[i][j] = actualV + Rv;
+                            W[i][j] = actualW + Rw;
+                            S[i][j] = actualS + Rs;
 
                             // Update right side of Thomas algorithm
                             rightside[j][i] = U[i][j];
@@ -4321,7 +4369,7 @@ void runMethodOnlyTotalTimeAnalysis(bool options[], char *method, float deltatOD
         fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
         discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
         c_, d_, Utilde, Vtilde, Wtilde, Stilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, saveDataToGif, \
-        Ru, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
+        Ru, rightside, solution, start1stPart, finish1stPart, elapsed1stPart, start2ndPart, finish2ndPart, elapsed2ndPart)
         {
             while (timeStepCounter < M)
             {
@@ -4454,7 +4502,7 @@ void runMethodOnlyTotalTimeAnalysis(bool options[], char *method, float deltatOD
         fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
         discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
         c_, d_, Utilde, Vtilde, Wtilde, Stilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, saveDataToGif, \
-        Ru, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
+        Ru, rightside, solution, start1stPart, finish1stPart, elapsed1stPart, start2ndPart, finish2ndPart, elapsed2ndPart)
         {
             while (timeStepCounter < M)
             {
@@ -4479,14 +4527,20 @@ void runMethodOnlyTotalTimeAnalysis(bool options[], char *method, float deltatOD
                         // Update U with diffusion
                         Utilde[i][j] = actualU + ((0.5 * phi) * (iDiffusion2nd(i, j, N, U, discFibxMax, discFibxMin, discFibyMax, discFibyMin) + jDiffusion2nd(i, j, N, U, discFibxMax, discFibxMin, discFibyMax, discFibyMin))) + (0.5 * deltatODE * (reactionU(actualU, actualV, actualW, actualS) + Istim));
 
-                        // Update U reaction term
                         actualU = Utilde[i][j];
+
+                        // Right hand side of the other variables
+                        Rv = deltatODE * rhsV(actualU, actualV);
+                        Rw = deltatODE * rhsW(actualU, actualW);
+                        Rs = deltatODE * rhsS(actualU, actualS);
+
+                        // Update U reaction term
                         Ru[i][j] = deltatODE * (reactionU(actualU, actualV, actualW, actualS) + Istim);
 
                         // Update the other variables explicitly
-                        V[i][j] = actualV + (deltatODE * rhsV(actualU, actualV));
-                        W[i][j] = actualW + (deltatODE * rhsW(actualU, actualW));
-                        S[i][j] = actualS + (deltatODE * rhsS(actualU, actualS));
+                        V[i][j] = actualV + Rv;
+                        W[i][j] = actualW + Rw;
+                        S[i][j] = actualS + Rs;
                     }
                 }
 
@@ -4568,9 +4622,9 @@ void runMethodOnlyTotalTimeAnalysis(bool options[], char *method, float deltatOD
     }
 
 
-    /*-------------------------
+    /*------------------------------
     --  MOSI-ADI (Mixed.2 order)  --
-    --------------------------*/
+    ------------------------------*/
     else if (strcmp(method, "MOSI-ADI.2") == 0)
     {   
         // Start measuring total execution time
@@ -4581,7 +4635,7 @@ void runMethodOnlyTotalTimeAnalysis(bool options[], char *method, float deltatOD
         fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
         discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
         c_, d_, Utilde, Vtilde, Wtilde, Stilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, saveDataToGif, \
-        Ru, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
+        Ru, rightside, solution, start1stPart, finish1stPart, elapsed1stPart, start2ndPart, finish2ndPart, elapsed2ndPart)
         {
             while (timeStepCounter < M)
             {
@@ -4606,13 +4660,18 @@ void runMethodOnlyTotalTimeAnalysis(bool options[], char *method, float deltatOD
                         // Update U with diffusion
                         Utilde[i][j] = actualU + ((0.5 * phi) * (iDiffusion2nd(i, j, N, U, discFibxMax, discFibxMin, discFibyMax, discFibyMin) + jDiffusion2nd(i, j, N, U, discFibxMax, discFibxMin, discFibyMax, discFibyMin))) + (0.5 * deltatODE * (reactionU(actualU, actualV, actualW, actualS) + Istim));
 
+                        // Right hand side of the other variables
+                        Rv = deltatODE * rhsV(actualU, actualV);
+                        Rw = deltatODE * rhsW(actualU, actualW);
+                        Rs = deltatODE * rhsS(actualU, actualS);
+
                         // Update U reaction term
                         Ru[i][j] = deltatODE * (reactionU(Utilde[i][j], actualV, actualW, actualS) + Istim);
 
                         // Update the other variables explicitly
-                        V[i][j] = actualV + (deltatODE * rhsV(actualU, actualV));
-                        W[i][j] = actualW + (deltatODE * rhsW(actualU, actualW));
-                        S[i][j] = actualS + (deltatODE * rhsS(actualU, actualS));
+                        V[i][j] = actualV + Rv;
+                        W[i][j] = actualW + Rw;
+                        S[i][j] = actualS + Rs;
                     }
                 }
 
@@ -4706,7 +4765,7 @@ void runMethodOnlyTotalTimeAnalysis(bool options[], char *method, float deltatOD
         fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
         discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
         c_, d_, Utilde, Vtilde, Wtilde, Stilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, saveDataToGif, \
-        Ru, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
+        Ru, rightside, solution, start1stPart, finish1stPart, elapsed1stPart, start2ndPart, finish2ndPart, elapsed2ndPart)
         {
             while (timeStepCounter < M)
             {
@@ -4820,6 +4879,10 @@ void runMethodOnlyTotalTimeAnalysis(bool options[], char *method, float deltatOD
                 #pragma omp barrier
             }
         }
+
+        // Finish measuring total execution time
+        finishTotal = omp_get_wtime();
+        elapsedTotal = finishTotal - startTotal;
     }
 
 
@@ -4836,7 +4899,7 @@ void runMethodOnlyTotalTimeAnalysis(bool options[], char *method, float deltatOD
         fibrosisFactor, stimStrength, stim1Duration, stim2Duration, stim1Begin, stim2Begin, stim1xLimit, stim1yLimit, \
         discS1xLimit, discS1yLimit, discS2xMax, discS2yMax, discS2xMin, discS2yMin, discFibxMax, discFibxMin, discFibyMax, discFibyMin, \
         c_, d_, Utilde, Vtilde, Wtilde, Stilde, S1Velocity, S1VelocityTag, VWTag, saverate, fpFrames, saveDataToGif, \
-        Ru, rightside, solution, startODE, finishODE, elapsedODE, startPDE, finishPDE, elapsedPDE)
+        Ru, rightside, solution, start1stPart, finish1stPart, elapsed1stPart, start2ndPart, finish2ndPart, elapsed2ndPart)
         {
             while (timeStepCounter < M)
             {
