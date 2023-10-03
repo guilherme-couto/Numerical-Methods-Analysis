@@ -302,8 +302,8 @@ void initializeVariables(int N, double **V, double **W)
 }
 
 void initializeVariablesWithSpiral(int N, double **V, double **W, double dxActual, int rate)
-{
-	double dxRef = 0.00125;
+{   
+	double dxRef = 0.001;
     int NRef = round(L / dxRef) + 1;
 	
 	int MAX_LINE_LENGTH = 20;

@@ -1,6 +1,0 @@
-S1 velocity: 0.604514 m/s
-S2 begin: 120.0 ms
-PDE/ODE ratio: 1
-1st parte execution time: 28.996615 seconds
-2nd part execution time: 76.272407 seconds
-Total execution time with file writing: 117.418418 seconds

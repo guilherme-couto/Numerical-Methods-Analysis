@@ -20,8 +20,15 @@ methods_first = ['OS-ADI', 'SSI-ADI', 'MOSI-ADI.3']
 methods_second = ['OS-ADI', 'SSI-ADI', 'MOSI-ADI.3']
 
 dxs = ['0.020', '0.025', '0.040', '0.050']
-dts_first = ['0.00040', '0.000625', '0.00160', '0.00250']   # A = 1 (dt = A dx²)
-dts_second = ['0.020', '0.025', '0.040', '0.050']           # A = 1 (dt = A dx)
+dts_first = ['0.00400', '0.00625', '0.01600', '0.02500']           # A = 10 (dt = A dx²)
+dts_second = ['0.02000', '0.02500', '0.04000', '0.05000']           # A = 1 (dt = A dx)
+
+dx_ref = 0.001
+dt_ref_second = 0.001   # A = 1 (dt = A dx)
+dt_ref_first = 0.00001  # A = 10 (dt = A dx²)
+ref_methods = ['SSI-ADI']
+ref = 0.001
+spatial_ref = 0.2
 
 print('For second order methods:')
 for i in range(len(dxs)):
@@ -31,36 +38,35 @@ for i in range(len(dxs)):
     print(f'dx = {dxs[i]}, dt = {dts_first[i]}')
 
 # Run convergence cases
-ref = 0.002
-spatial_ref = 0.2
+# Compile
+os.system(f'gcc -o main main.c -O3 -lm -lpthread -fopenmp')
 for cell_model in cell_models:
-	for num_threads in numbers_threads:
-		for method in methods_first:
-			for i in range(len(dxs)):
-				spatial_rate = int(spatial_ref / float(dxs[i]))
-				rate = int(float(dxs[i]) / ref)
+    for num_threads in numbers_threads:
+        for method in methods_first:
+            for i in range(len(dxs)):
+                spatial_rate = int(spatial_ref / float(dxs[i]))
+                rate = int(float(dxs[i]) / ref)
+                
+                # Second order
+                path = f'./simulation-files/{dxs[i]}/{cell_model}/{method}/last-{numbers_threads[-1]}-{(dts_second[i])}.txt'
+                if not os.path.exists(path):
+                    execution_line = f'./main {num_threads} {dxs[i]} {dts_second[i]} {method} {rate} {spatial_rate}'
+                    print(f'Executing {execution_line}')
+                    os.system(f'{execution_line}')
+                    print(f'Simultation {execution_line} finished!\n')
 
-				execution_line = f'./main {num_threads} {dxs[i]} {dts_second[i]} {method} {rate} {spatial_rate}'				
-				print(f'Executing {execution_line}')
-				os.system(f'{execution_line}')
-				print(f'Simultation {execution_line} finished!\n')
-				
-				execution_line = f'./main {num_threads} {dxs[i]} {dts_first[i]} {method} {rate} {spatial_rate}'
-				print(f'Executing {execution_line}')
-				os.system(f'{execution_line}')
-				print(f'Simultation {execution_line} finished!\n')
+                # First order
+                path = f'./simulation-files/{dxs[i]}/{cell_model}/{method}/last-{numbers_threads[-1]}-{(float(dts_first[i])):.5f}.txt'
+                if not os.path.exists(path):
+                    execution_line = f'./main {num_threads} {dxs[i]} {dts_first[i]} {method} {rate} {spatial_rate}'
+                    print(f'Executing {execution_line}')
+                    os.system(f'{execution_line}')
+                    print(f'Simultation {execution_line} finished!\n')
 
 # Run reference case
-dx_ref = 0.002
-#dt_ref_second = 0.01
-#dt_ref_first = 0.0005
-dt_ref_second = 0.002
-dt_ref_first = 0.000004
-ref_methods = ['SSI-ADI']
-
 print(f'Reference case {(float(dxs[0])/dx_ref):.2f} times smaller')
 print(f'dx_ref = {dx_ref}, dt_ref_second = {dt_ref_second}')
-print(f'dx_ref = {dx_ref}, dt_ref_first = {dt_ref_first}')
+print(f'dx_ref = {dx_ref}, dt_ref_first = {dt_ref_first}\n')
 
 spatial_rate = int(spatial_ref / float(dx_ref))
 rate = int(dx_ref / ref)
@@ -117,11 +123,10 @@ for method in methods_first:
 for method in methods_second:
     cases_second[method] = []
 
-path_base = "./simulation-files/"
 for method in methods_second:
     for i in range(len(dxs)):
         # Second order methods
-        path = path_base + dxs[i] + "/" + cell_models[0] + "/" + method + f"/last-{numbers_threads[-1]}-" + dts_second[i] + ".txt"
+        path = f'./simulation-files/{dxs[i]}/{cell_models[0]}/{method}/last-{numbers_threads[-1]}-{(dts_second[i])}.txt'
         case = []
         with open(path, 'r') as file:
             for line in file:
@@ -135,7 +140,9 @@ for method in methods_second:
         # First order methods
         if dts_first[i] == '0.000625':
             dts_first[i] = '0.00062'
-        path = path_base + dxs[i] + "/" + cell_models[0] + "/" + method + f"/last-{numbers_threads[-1]}-" + dts_first[i] + ".txt"
+        if dts_first[i] == '0.003125':
+            dts_first[i] = '0.00312'
+        path = f'./simulation-files/{dxs[i]}/{cell_models[0]}/{method}/last-{numbers_threads[-1]}-{((dts_first[i]))}.txt'
         case = []
         with open(path, 'r') as file:
             for line in file:
@@ -158,7 +165,7 @@ plt.xlabel('dt')
 plt.ylabel('Error')
 plt.title(f'Convergence for second order methods')
 plt.grid()
-plt.savefig(f'{path_base}convergence_plot_2nd.png')
+plt.savefig(f'./simulation-files/convergence_plot_2nd.png')
 
 dts_first_float = [float(dt) for dt in dts_first]
 plt.figure()
@@ -169,7 +176,7 @@ plt.xlabel('dt')
 plt.ylabel('Error')
 plt.title(f'Convergence for first order methods')
 plt.grid()
-plt.savefig(f'{path_base}convergence_plot_1st.png')
+plt.savefig(f'./simulation-files/convergence_plot_1st.png')
 
 # Print errors
 slopes_file = open('slopes.txt', 'w') 

@@ -2042,7 +2042,7 @@ void runMethodConvergenceAnalysis(bool fibro, char *method, float delta_x, float
     // Update delta x and delta y
     deltax = delta_x;
     deltay = delta_x;
-
+    
     // Update delta t for ODEs and PDEs
     float deltatODE = delta_t;
     float deltatPDE = delta_t;
@@ -2080,7 +2080,7 @@ void runMethodConvergenceAnalysis(bool fibro, char *method, float delta_x, float
     // Diffusion coefficient - isotropic
     double D = sigma / (chi * Cm);
     double phi = D * deltatPDE / (deltax * deltax);    // For Thomas algorithm - isotropic
-
+    
     // Variables
     int i, j;                                          // i for y-axis and j for x-axis
     double actualV, actualW;

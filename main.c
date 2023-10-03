@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
             {
                 fibrosisFactor = 1.0;
             }
-            //runMethodConvergenceAnalysis(fibrosis, method, delta_x, delta_t, numberThreads, spatialRate, rate);
+            runMethodConvergenceAnalysis(fibrosis, method, delta_x, delta_t, numberThreads, spatialRate, rate);
             return 0;
         }
         printf("Usage: %s <num_threads> <delta_t ODE (ms)> <delta_t PDE (ms)> <method> <fibrosis (0-false or 1-true)> <vulnerability window (0-false or 1-true)> <only speed (0-false or 1-true)>\n", argv[0]);

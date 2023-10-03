@@ -30,7 +30,10 @@ def create_gif(num_threads, dt_ODE, dt_PDE, method, cell_model, dx):
                 
             frames.append(frame_name)
 
-            plt.imshow(lines[i:i+discretization_size], cmap='plasma', vmin=-85.0, vmax=50)
+            if cell_model == 'AFHN' or cell_model == 'AFHN-Fibro':
+                plt.imshow(lines[i:i+discretization_size], cmap='plasma', vmin=0.0, vmax=100)
+            else:
+                plt.imshow(lines[i:i+discretization_size], cmap='plasma', vmin=-85.0, vmax=50)
             plt.colorbar(label='V (mV)')
             if method == 'OS-ADI' or method == 'FE':
                 plt.title(f'{cell_model} {method} dtODE = {dt_ODE} dtPDE = {dt_PDE} t = {times[n]:.2f}')
